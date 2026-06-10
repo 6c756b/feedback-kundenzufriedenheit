@@ -1,0 +1,22 @@
+<br>
+<table style="font-size:10pt; font-family:Calibri; min-width:420px;">
+    <tr>
+        {{#if_image}}<td style="padding-right:20px; width:80px; vertical-align:top;">
+            <img src="{{image_base64}}" width="80" style="width:80px; display:block;">
+        </td>{{/if_image}}
+        <td style="vertical-align:top; color:#000;">
+            <div style="font-weight:bold;">{{display_name}}</div>
+            <div style="color:#555;">{{job_title}}</div>
+            <br>
+            <table style="border:0; border-collapse:collapse; font-size:9pt;">
+                <tr>
+                    <td style="padding-right:16px; vertical-align:top; color:#888;">E-Mail<br>Tel</td>
+                    <td style="vertical-align:top;">
+                        <a href="mailto:{{email}}">{{email}}</a><br>
+                        {{phone}}
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>

@@ -1,0 +1,17 @@
+.vscode/
+.claude/*
+CLAUDE.md
+.mcp.json
+
+# Project Files
+config.php
+storage/sessions/
+database/kzb.sqlite
+venv/
+Design-Entwuerfe/
+
+# Added by code-review-graph
+.code-review-graph/
+
+# Legacy DB-Dumps (ggf. Kundendaten)
+Datenbank/
