@@ -63,7 +63,7 @@ $config = require ROOT . '/config.php';
         <?php endif; ?>
     </ul>
     <div class="nav-user">
-        <span><?= e($user['name'] ?? '') ?></span>
+        <a href="/backend/profil" class="nav-user-name<?= str_starts_with($uri, '/backend/profil') ? ' active' : '' ?>"><?= e($user['name'] ?? '') ?></a>
         <form method="post" action="/backend/logout" style="display:inline">
             <?= \App\Core\Csrf::field() ?>
             <button type="submit" class="btn-ghost btn-sm">Abmelden</button>

@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS users (
     signature_image   TEXT    NOT NULL DEFAULT '',
     active            INTEGER NOT NULL DEFAULT 1,
     dashboard_filters TEXT    NULL,
+    password_hash     TEXT    NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

@@ -6,7 +6,7 @@ CLAUDE.md
 # Project Files
 config.php
 storage/sessions/
-database/kzb.sqlite
+database/*.sqlite
 venv/
 Design-Entwuerfe/
 public/assets/img/own/

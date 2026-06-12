@@ -178,6 +178,15 @@ h3 { font-size: 16px; font-weight: 700; }
   color: var(--color-navy-40);
   font-size: 13px;
 }
+.nav-user-name {
+  color: var(--color-navy-40);
+  text-decoration: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+  transition: color .15s, background .15s;
+}
+.nav-user-name:hover,
+.nav-user-name.active { color: #fff; background: rgba(255,255,255,.12); }
 
 /* Main Layout */
 .main-content {

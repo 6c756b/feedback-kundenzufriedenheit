@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS users (
     signature_image    MEDIUMTEXT   NOT NULL DEFAULT '',
     active             TINYINT(1) NOT NULL DEFAULT 1,
     dashboard_filters  TEXT NULL,
+    password_hash      VARCHAR(255) NULL,
     created_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

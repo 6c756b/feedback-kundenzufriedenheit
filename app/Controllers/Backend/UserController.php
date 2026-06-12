@@ -72,7 +72,7 @@ class UserController
             Response::redirect('/backend/benutzer/neu');
         }
 
-        $id = User::create([
+        $data = [
             'name'          => trim($request->post('name')),
             'email'         => strtolower(trim($request->post('email'))),
             'role'          => $request->post('role'),
@@ -82,7 +82,9 @@ class UserController
             'display_name'  => trim($request->post('display_name', '')),
             'job_title'     => trim($request->post('job_title', '')),
             'phone'         => trim($request->post('phone', '')),
-        ]);
+        ];
+        $this->applyPasswordData($request, $data);
+        $id = User::create($data);
 
         Logger::backend('user.created', 'user', $id, 'Benutzer angelegt');
         Session::flash('success', 'Benutzer wurde angelegt.');
@@ -150,7 +152,8 @@ class UserController
         if (!empty($_FILES['signature_image']['tmp_name']) && $_FILES['signature_image']['error'] === UPLOAD_ERR_OK) {
             $file = $_FILES['signature_image'];
             if ($file['size'] <= self::MAX_IMAGE_BYTES) {
-                $mime = mime_content_type($file['tmp_name']);
+                $imageInfo = @getimagesize($file['tmp_name']);
+                $mime = $imageInfo ? $imageInfo['mime'] : '';
                 if (in_array($mime, self::ALLOWED_MIME, true)) {
                     $data['signature_image'] = 'data:' . $mime . ';base64,' . base64_encode((string) file_get_contents($file['tmp_name']));
                 }
@@ -159,6 +162,7 @@ class UserController
             $data['signature_image'] = '';
         }
 
+        $this->applyPasswordData($request, $data);
         User::update($id, $data);
 
         Logger::backend('user.updated', 'user', $id, 'Benutzer aktualisiert');
@@ -188,6 +192,21 @@ class UserController
             $errors[] = 'Ungültige Rolle.';
         }
 
+        $localPw = $request->post('local_password', '');
+        if ($localPw !== '' && strlen($localPw) < 8) {
+            $errors[] = 'Lokales Passwort: mindestens 8 Zeichen erforderlich.';
+        }
+
         return $errors;
+    }
+
+    private function applyPasswordData(Request $request, array &$data): void
+    {
+        $localPw = $request->post('local_password', '');
+        if ($localPw !== '') {
+            $data['password_hash'] = password_hash($localPw, PASSWORD_DEFAULT);
+        } elseif (!empty($request->post('clear_local_password'))) {
+            $data['password_hash'] = null;
+        }
     }
 }

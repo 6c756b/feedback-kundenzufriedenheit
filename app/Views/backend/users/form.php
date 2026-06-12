@@ -107,6 +107,20 @@ $isProjectlead  = !empty($old['is_projectlead']);
             </label>
             <?php endif; ?>
         </div>
+        <div class="form-group">
+            <label for="local_password">Lokales Passwort (LDAP-Fallback)</label>
+            <input type="password" id="local_password" name="local_password"
+                   autocomplete="new-password" placeholder="Leer lassen = keine Änderung">
+            <small style="color:#888;margin-top:4px;display:block">
+                Status: <?= !empty($user['password_hash']) ? '<strong>Gesetzt</strong>' : 'Nicht gesetzt' ?>
+            </small>
+            <?php if (!empty($user['password_hash'])): ?>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px">
+                <input type="checkbox" name="clear_local_password" value="1">
+                Lokales Passwort entfernen
+            </label>
+            <?php endif; ?>
+        </div>
         <?php endif; ?>
     </div>
 

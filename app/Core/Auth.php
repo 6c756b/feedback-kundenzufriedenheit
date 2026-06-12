@@ -34,7 +34,7 @@ class Auth
         try {
             $conn = \ldap_connect($uri);
             if (!$conn) {
-                return false;
+                return self::attemptLocalPassword($email, $password);
             }
 
             \ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);
@@ -43,7 +43,7 @@ class Auth
             if (!@\ldap_bind($conn, $email, $password)) {
                 error_log('KZB LDAP bind failed for ' . $email . ': ' . \ldap_error($conn));
                 \ldap_unbind($conn);
-                return false;
+                return self::attemptLocalPassword($email, $password);
             }
 
             // LDAP-Bind erfolgreich - Benutzerdaten ermitteln
@@ -52,7 +52,7 @@ class Auth
             \ldap_unbind($conn);
         } catch (\Exception $e) {
             error_log('KZB LDAP error: ' . $e->getMessage());
-            return false;
+            return self::attemptLocalPassword($email, $password);
         }
 
         $db   = Database::getInstance();
@@ -99,6 +99,42 @@ class Auth
         return true;
     }
 
+    private static function attemptLocalPassword(string $email, string $password): bool
+    {
+        $db   = Database::getInstance();
+        $user = $db->fetchOne(
+            'SELECT id, name, email, role, active, password_hash FROM users WHERE email = ?',
+            [$email]
+        );
+
+        if (!$user || empty($user['password_hash'])) {
+            Session::flash('login_error', 'Anmeldung fehlgeschlagen.');
+            return false;
+        }
+
+        if (!password_verify($password, $user['password_hash'])) {
+            Session::flash('login_error', 'Anmeldung fehlgeschlagen.');
+            return false;
+        }
+
+        if ($user['role'] === 'none' || !$user['active']) {
+            Session::flash('login_error', 'Benutzerkonto nicht aktiviert, bitte an die Administration wenden.');
+            return false;
+        }
+
+        session_regenerate_id(true);
+        Csrf::regenerate();
+
+        Session::set(self::SESSION_KEY, [
+            'id'    => $user['id'],
+            'name'  => $user['name'],
+            'email' => $user['email'],
+            'role'  => $user['role'],
+        ]);
+
+        return true;
+    }
+
     private static function attemptLocal(string $email, string $password, array $config): bool
     {
         $devUsers = $config['dev_auth']['users'] ?? [];
@@ -112,8 +148,7 @@ class Auth
         }
 
         if (!$devUser) {
-            Session::flash('login_error', 'Ungültige Anmeldedaten (Entwicklungsmodus).');
-            return false;
+            return self::attemptLocalPassword($email, $password);
         }
 
         $db   = Database::getInstance();

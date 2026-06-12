@@ -62,6 +62,12 @@ $router->get('/backend/login',                      [\App\Controllers\Backend\Au
 $router->post('/backend/login',                     [\App\Controllers\Backend\AuthController::class, 'login']);
 $router->post('/backend/logout',                    [\App\Controllers\Backend\AuthController::class, 'logout']);
 
+// ── Backend Profil ───────────────────────────────────────────
+$router->get('/backend/profil',                     [\App\Controllers\Backend\ProfileController::class, 'show'])
+       ->middleware(['auth']);
+$router->post('/backend/profil',                    [\App\Controllers\Backend\ProfileController::class, 'update'])
+       ->middleware(['auth']);
+
 // ── Backend Dashboard ────────────────────────────────────────
 $router->get('/backend',                            [\App\Controllers\Backend\DashboardController::class, 'index'])
        ->middleware(['auth', 'role:reader']);
