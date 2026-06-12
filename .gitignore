@@ -9,9 +9,11 @@ storage/sessions/
 database/kzb.sqlite
 venv/
 Design-Entwuerfe/
+public/assets/img/own/
 
 # Added by code-review-graph
 .code-review-graph/
 
 # Legacy DB-Dumps (ggf. Kundendaten)
 Datenbank/
+
