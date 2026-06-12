@@ -2810,6 +2810,7 @@ body.frontend:has(.sq-page) { background: #faf9f6; }
 .sq-footer a { color: rgba(26,28,40,.45); text-decoration: none; }
 .sq-footer a:hover { color: #86bc24; }
 .sq-footer-links { display: flex; align-items: center; gap: 16px; }
+.sq-footer-github { display: inline-flex; align-items: center; gap: 5px; }
 
 /* ── Modals ── */
 .sq-page .modal { z-index: 200; }

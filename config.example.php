@@ -31,6 +31,7 @@ return [
     ],
     'branding' => [
         'logo_main'    => '/assets/img/logo.svg',       // Header-Logo im Frontend
+        'logo_height'  => '56px',                       // Höhe des Logos im Umfrage-Header (CSS-Wert, z.B. '26px', '2rem')
         'logo_favicon' => '/assets/img/favicon.png',    // Browser-Favicon
         'logo_nav'     => '/assets/img/logo-nav.png',   // Logo in der Backend-Navigation
         'logo_alt'     => 'Muster GmbH',                // Alt-Text für alle Logos
