@@ -82,6 +82,7 @@ class UserController
             'display_name'  => trim($request->post('display_name', '')),
             'job_title'     => trim($request->post('job_title', '')),
             'phone'         => trim($request->post('phone', '')),
+            'login_method'  => $request->post('login_method', 'ldap'),
         ];
         $this->applyPasswordData($request, $data);
         $id = User::create($data);
@@ -147,6 +148,7 @@ class UserController
             'display_name'  => trim($request->post('display_name', '')),
             'job_title'     => trim($request->post('job_title', '')),
             'phone'         => trim($request->post('phone', '')),
+            'login_method'  => $request->post('login_method', 'ldap'),
         ];
 
         if (!empty($_FILES['signature_image']['tmp_name']) && $_FILES['signature_image']['error'] === UPLOAD_ERR_OK) {
@@ -190,6 +192,10 @@ class UserController
 
         if (!in_array($request->post('role'), $allowedRoles, true)) {
             $errors[] = 'Ungültige Rolle.';
+        }
+
+        if (!in_array($request->post('login_method', 'ldap'), ['ldap', 'local', 'both'], true)) {
+            $errors[] = 'Ungültige Login-Methode.';
         }
 
         $localPw = $request->post('local_password', '');

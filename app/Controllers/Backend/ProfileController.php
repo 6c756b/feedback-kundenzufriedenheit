@@ -74,11 +74,13 @@ class ProfileController
             $data['signature_image'] = '';
         }
 
-        $localPw = $request->post('local_password', '');
-        if ($localPw !== '') {
-            $data['password_hash'] = password_hash($localPw, PASSWORD_DEFAULT);
-        } elseif (!empty($request->post('clear_local_password'))) {
-            $data['password_hash'] = null;
+        if (($user['login_method'] ?? 'ldap') !== 'ldap') {
+            $localPw = $request->post('local_password', '');
+            if ($localPw !== '') {
+                $data['password_hash'] = password_hash($localPw, PASSWORD_DEFAULT);
+            } elseif (!empty($request->post('clear_local_password'))) {
+                $data['password_hash'] = null;
+            }
         }
 
         User::update($id, $data);

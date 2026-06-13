@@ -3,9 +3,11 @@ use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\Session;
 
-$h      = fn(string $v) => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
-$old    = Session::flash('old') ?? $user;
-$errors = Session::flash('errors') ?? [];
+$h           = fn(string $v) => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+$old         = Session::flash('old') ?? $user;
+$errors      = Session::flash('errors') ?? [];
+$loginMethod = $user['login_method'] ?? 'ldap';
+$hasPassword = !empty($user['password_hash']);
 ?>
 <div class="page-header">
     <h1>Mein Profil</h1>
@@ -21,6 +23,7 @@ $errors = Session::flash('errors') ?? [];
     <?= Csrf::field() ?>
 
     <div class="form-grid">
+
         <div class="form-group">
             <label for="name">Name *</label>
             <input type="text" id="name" name="name" required value="<?= $h((string)($old['name'] ?? '')) ?>">
@@ -29,6 +32,7 @@ $errors = Session::flash('errors') ?? [];
             <label for="display_name">Anzeigename (Signatur)</label>
             <input type="text" id="display_name" name="display_name" value="<?= $h((string)($old['display_name'] ?? '')) ?>">
         </div>
+
         <div class="form-group">
             <label>E-Mail</label>
             <input type="email" value="<?= $h((string)($user['email'] ?? '')) ?>" disabled>
@@ -38,10 +42,35 @@ $errors = Session::flash('errors') ?? [];
             <label for="job_title">Berufsbezeichnung</label>
             <input type="text" id="job_title" name="job_title" value="<?= $h((string)($old['job_title'] ?? '')) ?>">
         </div>
+
+        <?php if ($loginMethod !== 'ldap'): ?>
+        <div class="form-group">
+            <label for="local_password">Lokales Passwort</label>
+            <input type="password" id="local_password" name="local_password" autocomplete="new-password" placeholder="Leer lassen = keine Änderung">
+            <small style="color:#888;margin-top:4px;display:block">
+                Status: <?= $hasPassword ? '<strong>Gesetzt</strong>' : 'Nicht gesetzt' ?>
+                <?php if ($loginMethod === 'both'): ?>
+                &mdash; Fallback wenn LDAP nicht erreichbar ist.
+                <?php endif; ?>
+            </small>
+        </div>
+        <?php endif; ?>
         <div class="form-group">
             <label for="phone">Telefon</label>
             <input type="text" id="phone" name="phone" value="<?= $h((string)($old['phone'] ?? '')) ?>">
         </div>
+
+        <?php if ($loginMethod !== 'ldap' && $hasPassword): ?>
+        <div class="form-group">
+            <label>&nbsp;</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding-top:4px">
+                <input type="checkbox" name="clear_local_password" value="1">
+                Lokales Passwort entfernen
+            </label>
+        </div>
+        <?php elseif ($loginMethod !== 'ldap'): ?>
+        <div></div>
+        <?php endif; ?>
         <div class="form-group">
             <label for="signature_image">Profilbild (max. 2 MB)</label>
             <input type="file" id="signature_image" name="signature_image" accept="image/png,image/jpeg,image/gif,image/webp">
@@ -52,20 +81,7 @@ $errors = Session::flash('errors') ?? [];
             </label>
             <?php endif; ?>
         </div>
-        <div class="form-group">
-            <label for="local_password">Lokales Passwort (LDAP-Fallback)</label>
-            <input type="password" id="local_password" name="local_password" autocomplete="new-password" placeholder="Leer lassen = keine Änderung">
-            <small style="color:#888;margin-top:4px;display:block">
-                Status: <?= !empty($user['password_hash']) ? '<strong>Gesetzt</strong>' : 'Nicht gesetzt' ?>
-                &mdash; Wird verwendet, wenn LDAP nicht erreichbar ist.
-            </small>
-            <?php if (!empty($user['password_hash'])): ?>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px">
-                <input type="checkbox" name="clear_local_password" value="1">
-                Lokales Passwort entfernen
-            </label>
-            <?php endif; ?>
-        </div>
+
     </div>
 
     <div class="form-actions">

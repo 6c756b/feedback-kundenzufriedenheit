@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS users (
     active            INTEGER NOT NULL DEFAULT 1,
     dashboard_filters TEXT    NULL,
     password_hash     TEXT    NULL,
+    login_method      TEXT    NOT NULL DEFAULT 'ldap' CHECK(login_method IN ('ldap','local','both')),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
