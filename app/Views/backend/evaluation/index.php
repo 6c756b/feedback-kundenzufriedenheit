@@ -37,13 +37,10 @@ $resetUrl = '/backend/auswertung' . ($filters['show_all'] ?? '' ? '?show_all=1' 
 
         <div class="filter-search-wrap">
             <input type="text" name="customer_name" class="filter-text"
-                   placeholder="Kunde suchen…" list="af-customers" autocomplete="off"
-                   value="<?= $h($filters['customer_name'] ?? '') ?>">
-            <datalist id="af-customers">
-                <?php foreach ($customerNames as $cn): ?>
-                <option value="<?= $h($cn) ?>">
-                <?php endforeach; ?>
-            </datalist>
+                   placeholder="Kunde suchen…" autocomplete="off"
+                   value="<?= $h($filters['customer_name'] ?? '') ?>"
+                   data-ac='<?= json_encode(array_values($customerNames), JSON_UNESCAPED_UNICODE) ?>'>
+            <div class="ac-dropdown" hidden></div>
         </div>
 
         <select name="created_by" class="filter-select">

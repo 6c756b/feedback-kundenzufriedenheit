@@ -10,14 +10,26 @@ $statusLabels = [
     'cancelled' => 'Abgebrochen',
     'archived'  => 'Archiviert',
 ];
-$salutationLabels = ['' => '–', 'herr' => 'Herr', 'frau' => 'Frau'];
+$salutationLabels = ['' => '', 'herr' => 'Herr', 'frau' => 'Frau'];
 $isOpenOrStarted  = in_array($survey['status'], ['open', 'started'], true);
 
 $smtpConfig    = (require ROOT . '/config.php')['smtp'] ?? [];
 $smtpAvailable = !empty($smtpConfig['host']);
 ?>
-<div class="page-header">
-    <h1>Befragung: <?= $h($survey['customer_name']) ?></h1>
+
+<!-- Seiten-Header -->
+<div class="page-header" style="margin-bottom:24px">
+    <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <span class="badge badge-<?= $h($survey['status']) ?>" style="font-size:12px;padding:4px 10px">
+                <?= $h($statusLabels[$survey['status']] ?? '') ?>
+            </span>
+        </div>
+        <h1 style="margin:0;line-height:1.2"><?= $h($survey['customer_name']) ?></h1>
+        <?php if ($survey['project_name']): ?>
+        <p style="margin:4px 0 0;color:var(--color-navy-60);font-size:14px"><?= $h($survey['project_name']) ?></p>
+        <?php endif; ?>
+    </div>
     <div class="header-actions">
         <?php if (Auth::hasRole('staff') && $survey['status'] === 'open'): ?>
         <a href="/backend/befragungen/<?= (int)$survey['id'] ?>/bearbeiten" class="btn-ghost">Bearbeiten</a>
@@ -43,118 +55,113 @@ $smtpAvailable = !empty($smtpConfig['host']);
     </div>
 </div>
 
-<div class="form-card">
-    <div class="form-grid">
-        <!-- Zeile 1: Kunde | Ansprechpartner -->
-        <div class="form-group">
-            <label>Kunde</label>
-            <div class="readonly-field"><?= $h($survey['customer_name']) ?></div>
-        </div>
-        <div class="form-group">
-            <label>Ansprechpartner</label>
-            <div class="readonly-field"><?= $h($survey['contact_person']) ?></div>
-        </div>
+<!-- Detail-Karten -->
+<div class="survey-detail-grid">
 
-        <!-- Zeile 2: Projektname | Anrede -->
-        <div class="form-group">
-            <label>Projektname</label>
-            <div class="readonly-field"><?= $h($survey['project_name']) ?></div>
-        </div>
-        <div class="form-group">
-            <label>Anrede</label>
-            <div class="readonly-field"><?= $h($salutationLabels[$survey['contact_salutation'] ?? ''] ?? '–') ?></div>
-        </div>
-
-        <!-- Zeile 3: Projekt-ID | E-Mail -->
-        <div class="form-group">
-            <label>Projekt-ID</label>
-            <div class="readonly-field"><?= $survey['project_id'] ? $h($survey['project_id']) : '<span class="text-muted">–</span>' ?></div>
-        </div>
-        <div class="form-group">
-            <label>E-Mail</label>
-            <div class="readonly-field"><?= $h($survey['contact_email']) ?></div>
-        </div>
-
-        <!-- Zeile 4: Bereiche | Vertrieb -->
-        <div class="form-group">
-            <label>Bereiche</label>
-            <div class="readonly-field"><?= $survey['area_names'] ? $h($survey['area_names']) : '<span class="text-muted">–</span>' ?></div>
-        </div>
-        <div class="form-group">
-            <label>Vertrieb</label>
-            <div class="readonly-field"><?= $survey['sales_user_name'] ? $h($survey['sales_user_name']) : '<span class="text-muted">–</span>' ?></div>
-        </div>
-
-        <!-- Zeile 4b: Projektleitung | Metropolregion -->
-        <div class="form-group">
-            <label>Projektleitung</label>
-            <div class="readonly-field"><?= !empty($survey['project_lead_name']) ? $h($survey['project_lead_name']) : '<span class="text-muted">–</span>' ?></div>
-        </div>
-        <div class="form-group">
-            <label>Metropolregion</label>
-            <div class="readonly-field"><?= !empty($survey['metropolregion_name']) ? $h($survey['metropolregion_name']) : '<span class="text-muted">–</span>' ?></div>
-        </div>
-
-        <!-- Zeile 5: Code | Status -->
-        <div class="form-group">
-            <label>Code</label>
-            <div class="readonly-field"><code><?= $h($survey['code']) ?></code></div>
-        </div>
-        <div class="form-group">
-            <label>Status</label>
-            <div class="readonly-field">
-                <span class="badge badge-<?= $h($survey['status']) ?>"><?= $h($statusLabels[$survey['status']] ?? '') ?></span>
+    <!-- Kontakt -->
+    <div class="detail-card">
+        <div class="detail-card-title">Kontakt</div>
+        <dl class="detail-list">
+            <?php
+                $salutation = $salutationLabels[$survey['contact_salutation'] ?? ''] ?? '';
+                $contactFull = trim(($salutation ? $salutation . ' ' : '') . $survey['contact_person']);
+            ?>
+            <div class="detail-row">
+                <dt>Ansprechpartner</dt>
+                <dd><?= $contactFull ? $h($contactFull) : '<span class="text-muted">–</span>' ?></dd>
             </div>
-        </div>
-
-        <!-- Zeile 6: Erstellt von | Erstellt am -->
-        <div class="form-group">
-            <label>Erstellt von</label>
-            <div class="readonly-field"><?= $h($survey['created_by_name']) ?></div>
-        </div>
-        <div class="form-group">
-            <label>Erstellt am</label>
-            <div class="readonly-field"><?= $h(date('d.m.Y H:i', strtotime($survey['created_at']))) ?></div>
-        </div>
-
-        <!-- E-Mail-Status -->
-        <div class="form-group">
-            <label>E-Mail versendet</label>
-            <div class="readonly-field">
-                <?php if ($survey['email_sent_at']): ?>
-                    <?= $h(date('d.m.Y H:i', strtotime($survey['email_sent_at']))) ?> Uhr
-                    · <?= $h($survey['email_sent_by_name'] ?? '–') ?>
-                    · <?= $survey['email_sent_method'] === 'system' ? 'System' : 'Outlook' ?>
-                <?php else: ?>
-                    <span class="text-muted">–</span>
-                <?php endif; ?>
+            <div class="detail-row">
+                <dt>E-Mail</dt>
+                <dd><?= $survey['contact_email'] ? '<a href="mailto:' . $h($survey['contact_email']) . '">' . $h($survey['contact_email']) . '</a>' : '<span class="text-muted">–</span>' ?></dd>
             </div>
-        </div>
-
-        <!-- Anmerkungen + Referenz -->
-        <?php if ($survey['internal_notes']): ?>
-        <div class="form-group form-full">
-            <label>Interne Anmerkungen</label>
-            <div class="readonly-field" style="white-space:pre-wrap"><?= $h($survey['internal_notes']) ?></div>
-        </div>
-        <?php endif; ?>
-        <div class="form-group">
-            <label>Referenz einholen</label>
-            <div class="readonly-field">
-                <?php if ($survey['reference_requested']): ?>
-                    <?php if ($survey['reference_granted'] === null): ?>
-                        <span class="badge badge-completed">Angefragt</span>
-                    <?php elseif ($survey['reference_granted']): ?>
-                        <span class="badge badge-open">Ja ✓</span>
-                    <?php else: ?>
-                        <span class="text-muted">Nein</span>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <span class="text-muted">Nein</span>
-                <?php endif; ?>
-            </div>
-        </div>
+        </dl>
     </div>
+
+    <!-- Projekt -->
+    <div class="detail-card">
+        <div class="detail-card-title">Projekt</div>
+        <dl class="detail-list">
+            <div class="detail-row">
+                <dt>Projekt-ID</dt>
+                <dd><?= $survey['project_id'] ? $h($survey['project_id']) : '<span class="text-muted">–</span>' ?></dd>
+            </div>
+            <div class="detail-row">
+                <dt>Bereiche</dt>
+                <dd><?= $survey['area_names'] ? $h($survey['area_names']) : '<span class="text-muted">–</span>' ?></dd>
+            </div>
+            <div class="detail-row">
+                <dt>Vertrieb</dt>
+                <dd><?= $survey['sales_user_name'] ? $h($survey['sales_user_name']) : '<span class="text-muted">–</span>' ?></dd>
+            </div>
+            <div class="detail-row">
+                <dt>Projektleitung</dt>
+                <dd><?= !empty($survey['project_lead_name']) ? $h($survey['project_lead_name']) : '<span class="text-muted">–</span>' ?></dd>
+            </div>
+            <div class="detail-row">
+                <dt>Metropolregion</dt>
+                <dd><?= !empty($survey['metropolregion_name']) ? $h($survey['metropolregion_name']) : '<span class="text-muted">–</span>' ?></dd>
+            </div>
+        </dl>
+    </div>
+
+    <!-- Versand -->
+    <div class="detail-card">
+        <div class="detail-card-title">Versand</div>
+        <dl class="detail-list">
+            <div class="detail-row">
+                <dt>Code</dt>
+                <dd><code style="background:#f0f1f4;padding:2px 6px;border-radius:4px;font-size:13px"><?= $h($survey['code']) ?></code></dd>
+            </div>
+            <div class="detail-row">
+                <dt>E-Mail</dt>
+                <dd>
+                    <?php if ($survey['email_sent_at']): ?>
+                        <?= $h(date('d.m.Y H:i', strtotime($survey['email_sent_at']))) ?> Uhr
+                        &middot; <?= $h($survey['email_sent_by_name'] ?? '–') ?>
+                        &middot; <?= $survey['email_sent_method'] === 'system' ? 'System' : 'Outlook' ?>
+                    <?php else: ?>
+                        <span class="text-muted">Noch nicht versendet</span>
+                    <?php endif; ?>
+                </dd>
+            </div>
+        </dl>
+    </div>
+
+    <!-- Verlauf -->
+    <div class="detail-card">
+        <div class="detail-card-title">Verlauf</div>
+        <dl class="detail-list">
+            <div class="detail-row">
+                <dt>Erstellt von</dt>
+                <dd><?= $h($survey['created_by_name']) ?> &middot; <?= $h(date('d.m.Y H:i', strtotime($survey['created_at']))) ?> Uhr</dd>
+            </div>
+            <div class="detail-row">
+                <dt>Referenz</dt>
+                <dd>
+                    <?php if ($survey['reference_requested']): ?>
+                        <?php if ($survey['reference_granted'] === null): ?>
+                            <span class="badge badge-completed">Angefragt</span>
+                        <?php elseif ($survey['reference_granted']): ?>
+                            <span class="badge badge-open">Erteilt</span>
+                        <?php else: ?>
+                            <span class="text-muted">Abgelehnt</span>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <span class="text-muted">Nicht angefragt</span>
+                    <?php endif; ?>
+                </dd>
+            </div>
+        </dl>
+    </div>
+
+    <?php if ($survey['internal_notes']): ?>
+    <!-- Notizen -->
+    <div class="detail-card detail-card--full">
+        <div class="detail-card-title">Interne Anmerkungen</div>
+        <p style="white-space:pre-wrap;margin:0;font-size:14px;color:var(--color-navy-80);line-height:1.6"><?= $h($survey['internal_notes']) ?></p>
+    </div>
+    <?php endif; ?>
+
 </div>
 
 <?php if (!empty($allSignatures)): ?>

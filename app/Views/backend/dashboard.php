@@ -212,16 +212,32 @@ $filterRaw = $filterQsRaw;
             </div>
             <?php if ($frontendLogs): ?>
                 <?php foreach ($frontendLogs as $log):
-                    $isDone = $log['action'] === 'frontend.completed';
+                    $isDone   = $log['action'] === 'frontend.completed';
+                    $customer = $log['survey_customer_name'] ?? '–';
+                    $project  = $log['survey_project_name']  ?? '';
                 ?>
                 <div class="activity-row">
                     <div class="activity-ts"><?= htmlspecialchars(date('d.m.Y H:i', strtotime($log['created_at'])), ENT_QUOTES, 'UTF-8') ?></div>
-                    <div><span class="activity-status <?= $isDone ? 'activity-status-completed' : 'activity-status-email' ?>">
-                        <?= $isDone ? 'Beendet' : 'Gestartet' ?>
-                    </span></div>
-                    <div class="activity-who"><?= htmlspecialchars($log['survey_customer_name'] ?? '–', ENT_QUOTES, 'UTF-8') ?></div>
+                    <div class="activity-icon <?= $isDone ? 'activity-icon-done' : 'activity-icon-started' ?>" title="<?= $isDone ? 'Beendet' : 'Gestartet' ?>">
+                        <?php if ($isDone): ?>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <?php else: ?>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <?php endif; ?>
+                    </div>
+                    <div class="activity-who">
+                        <?= htmlspecialchars($customer, ENT_QUOTES, 'UTF-8') ?>
+                        <?php if ($project !== '' && $project !== $customer): ?>
+                        <span class="activity-project"><?= htmlspecialchars($project, ENT_QUOTES, 'UTF-8') ?></span>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <?php endforeach; ?>
+                <div class="activity-legend">
+                    <span class="activity-icon activity-icon-started"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span> Gestartet
+                    &ensp;
+                    <span class="activity-icon activity-icon-done"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Beendet
+                </div>
                 <?= logPageNav($fPage, $fTotalPages, 'fp', ($filterRaw ? $filterRaw . '&' : '') . ($mPage > 1 ? 'mp=' . $mPage : '')) ?>
             <?php else: ?>
                 <p class="text-muted" style="padding:12px 0">Keine Einträge.</p>
@@ -236,24 +252,34 @@ $filterRaw = $filterQsRaw;
             </div>
             <?php if ($mailingLogs): ?>
                 <?php foreach ($mailingLogs as $log):
-                    $isSystem    = $log['action'] === 'survey.email_sent';
-                    $surveyStatus = $log['survey_status'] ?? '';
-                    $badgeClass  = match($surveyStatus) {
-                        'started'              => 'activity-status-email',
-                        'completed','archived' => 'activity-status-completed',
-                        default                => 'activity-status-started',
-                    };
+                    $isSystem = $log['action'] === 'survey.email_sent';
+                    $iconClass = $isSystem ? 'activity-icon-system' : 'activity-icon-outlook';
+                    $iconTitle = $isSystem ? 'System' : 'Outlook';
+                    $customer  = $log['survey_customer_name'] ?? '–';
+                    $sender    = $log['user_name'] ?? '';
                 ?>
                 <div class="activity-row">
                     <div class="activity-ts"><?= htmlspecialchars(date('d.m.Y H:i', strtotime($log['created_at'])), ENT_QUOTES, 'UTF-8') ?></div>
-                    <div><span class="activity-status <?= $badgeClass ?>">
-                        <?= $isSystem ? 'System' : 'Outlook' ?>
-                    </span></div>
-                    <div class="activity-who"><?= htmlspecialchars(
-                        trim(($log['survey_customer_name'] ?? '') . ($log['user_name'] ? ' · ' . $log['user_name'] : ''), ' ·'),
-                        ENT_QUOTES, 'UTF-8') ?></div>
+                    <div class="activity-icon <?= $iconClass ?>" title="<?= $iconTitle ?>">
+                        <?php if ($isSystem): ?>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <?php else: ?>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <?php endif; ?>
+                    </div>
+                    <div class="activity-who">
+                        <?= htmlspecialchars($customer, ENT_QUOTES, 'UTF-8') ?>
+                        <?php if ($sender): ?>
+                        <span class="activity-project"><?= htmlspecialchars($sender, ENT_QUOTES, 'UTF-8') ?></span>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <?php endforeach; ?>
+                <div class="activity-legend">
+                    <span class="activity-icon activity-icon-system"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span> System
+                    &ensp;
+                    <span class="activity-icon activity-icon-outlook"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span> Outlook
+                </div>
                 <?= logPageNav($mPage, $mTotalPages, 'mp', ($filterRaw ? $filterRaw . '&' : '') . ($fPage > 1 ? 'fp=' . $fPage : '')) ?>
             <?php else: ?>
                 <p class="text-muted" style="padding:12px 0">Keine Einträge.</p>

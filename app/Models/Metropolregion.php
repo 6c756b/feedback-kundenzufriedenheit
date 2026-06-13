@@ -38,6 +38,15 @@ class Metropolregion
         );
     }
 
+    public static function updateOrder(array $ids): void
+    {
+        $db   = Database::getInstance();
+        $stmt = 'UPDATE metropolregionen SET sort_order = ? WHERE id = ?';
+        foreach (array_values($ids) as $pos => $id) {
+            $db->execute($stmt, [$pos + 1, (int)$id]);
+        }
+    }
+
     public static function delete(int $id): void
     {
         Database::getInstance()->execute(

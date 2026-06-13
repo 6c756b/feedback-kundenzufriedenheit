@@ -16,14 +16,18 @@ class QuestionController
     {
         $questions = Question::findAll();
         $areas     = Area::findAll();
+        $filterAreaId = (int)($_GET['area_id'] ?? 0);
 
-        // Gruppieren nach Bereich
         $grouped = [];
         foreach ($questions as $q) {
             $grouped[$q['area_id']]['area_name']   = $q['area_name'];
             $grouped[$q['area_id']]['area_active']  = $q['area_active'];
             $grouped[$q['area_id']]['questions'][]  = $q;
         }
+
+        ob_start();
+        require ROOT . '/app/Views/backend/questions/_panel.php';
+        $panelContent = ob_get_clean();
 
         $pageTitle = 'Fragenverwaltung';
         ob_start();
@@ -34,8 +38,17 @@ class QuestionController
 
     public function create(array $params = []): void
     {
-        $areas    = Area::findAll();
-        $question = [];
+        $areas      = Area::findAll();
+        $preAreaId  = (int)($_GET['area_id'] ?? 0);
+        $preArea    = null;
+        foreach ($areas as $a) {
+            if ($a['id'] == $preAreaId) { $preArea = $a; break; }
+        }
+        $question = ['area_id' => $preAreaId];
+
+        ob_start();
+        require ROOT . '/app/Views/backend/questions/_panel.php';
+        $panelContent = ob_get_clean();
 
         $pageTitle = 'Neue Frage';
         ob_start();
@@ -56,13 +69,14 @@ class QuestionController
         if ($errors) {
             Session::flash('errors', $errors);
             Session::flash('old', $_POST);
-            Response::redirect('/backend/fragen/neu');
+            $areaId = (int)$request->post('area_id');
+            Response::redirect('/backend/fragen/neu' . ($areaId ? '?area_id=' . $areaId : ''));
         }
 
         $id = Question::create($this->buildData($request));
         Logger::backend('question.created', 'question', $id, 'Frage angelegt');
         Session::flash('success', 'Frage wurde angelegt.');
-        Response::redirect('/backend/fragen');
+        Response::redirect('/backend/fragen/' . $id . '/bearbeiten');
     }
 
     public function edit(array $params = []): void
@@ -72,7 +86,17 @@ class QuestionController
             Response::notFound();
         }
 
-        $areas     = Area::findAll();
+        $areas    = Area::findAll();
+        $preArea  = null;
+        foreach ($areas as $a) {
+            if ($a['id'] == $question['area_id']) { $preArea = $a; break; }
+        }
+        $preAreaId = (int)$question['area_id'];
+
+        ob_start();
+        require ROOT . '/app/Views/backend/questions/_panel.php';
+        $panelContent = ob_get_clean();
+
         $pageTitle = 'Frage bearbeiten';
         ob_start();
         require ROOT . '/app/Views/backend/questions/form.php';
@@ -104,7 +128,7 @@ class QuestionController
         Question::update($id, $this->buildData($request));
         Logger::backend('question.updated', 'question', $id, 'Frage aktualisiert');
         Session::flash('success', 'Frage wurde aktualisiert.');
-        Response::redirect('/backend/fragen');
+        Response::redirect('/backend/fragen/' . $id . '/bearbeiten');
     }
 
     public function destroy(array $params = []): void

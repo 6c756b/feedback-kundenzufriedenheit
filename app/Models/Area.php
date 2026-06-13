@@ -70,6 +70,15 @@ class Area
         Database::getInstance()->execute("UPDATE areas SET $sets WHERE id = ?", $params);
     }
 
+    public static function updateOrder(array $ids): void
+    {
+        $db   = Database::getInstance();
+        $stmt = 'UPDATE areas SET sort_order = ? WHERE id = ?';
+        foreach (array_values($ids) as $pos => $id) {
+            $db->execute($stmt, [$pos + 1, (int)$id]);
+        }
+    }
+
     public static function canDelete(int $id): bool
     {
         // Allgemein (id=1) ist nicht löschbar

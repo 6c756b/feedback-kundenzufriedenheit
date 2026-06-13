@@ -20,6 +20,7 @@ $config = require ROOT . '/config.php';
     <title><?= e($config['app']['name'] ?? '') ?> - <?= e($config['app']['survey_label'] ?? '') ?></title>
     <link rel="icon" type="image/png" href="<?= e($config['branding']['logo_favicon'] ?? '') ?>">
     <link rel="stylesheet" href="/assets/fonts/fonts.css">
+    <link rel="stylesheet" href="/assets/css/common.css">
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body class="frontend">
