@@ -19,7 +19,7 @@ return [
         'base_dn' => 'dc=example,dc=com',
     ],
     'app' => [
-        'version'          => '0.1a',               // App-Version (siehe CHANGELOG.md)
+        'version'          => '0.1.1a',               // App-Version (siehe CHANGELOG.md)
         'url'              => 'https://feedback.example.com',
         'session_lifetime' => 480,                  // Minuten
         'name'             => 'Feedback',           // Kurzname: Browser-Titel, Backend-Nav

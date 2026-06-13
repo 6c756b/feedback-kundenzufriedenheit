@@ -9,10 +9,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 - Reference management improvements
-- Allow login with password (when ldap not available)
 - better dummy logos and hero image
 - custom coloring
 - some more landing-page designs (maybe)
+
+---
+
+## [0.1.1a] - 2026-06-13 (WIP)
+
+### Added
+
+- Per-user login method: `ldap`, `local` (password only), or `both` (LDAP with local password fallback)
+- Database column `login_method` on `users` table (migration `002_add_login_method.sql`)
+- Login method selector in user edit form
+- Migration runner (`database/migrate_sqlite.php`) applies pending `.sql` migrations from `database/migrations/` and tracks applied migrations in `_migrations` table
+- `dev/start.ps1`: PowerShell equivalent of `dev/start.sh` for Windows development
+- `branding.logo_height` config key: optional CSS height for the logo in the survey header (e.g. `'56px'`)
+- Backend nav: username is a clickable link to the profile page
+
+### Changed
+
+- Auth flow now reads per-user `login_method` instead of always falling back to local password on LDAP failure; LDAP-only users have no password fallback
+- Auto-provisioned users (first LDAP login) receive `login_method = 'ldap'`
+- User edit form reorganised: left column for auth fields, right column for signature fields (Anzeigename, Berufsbezeichnung, Telefon, Profilbild); Rolle / Flags below
+- Profile form field order
+
+### Fixed
+
+- SQLite schema brought in sync with MySQL schema (missing columns added)
+- Session garbage collection probability and divisor now set explicitly (`gc_probability=1`, `gc_divisor=100`) to ensure reliable cleanup
 
 ---
 
