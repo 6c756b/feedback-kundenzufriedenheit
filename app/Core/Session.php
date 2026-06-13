@@ -30,6 +30,8 @@ class Session
         ]);
 
         ini_set('session.gc_maxlifetime', $lifetime);
+        ini_set('session.gc_probability', 1);
+        ini_set('session.gc_divisor',     100);
         session_start();
     }
 

@@ -4,7 +4,7 @@
     <!-- Top strip: Logo + Aktiv-Badge -->
     <div class="lp-topstrip">
         <a href="/" class="lp-topstrip-logo">
-            <img src="<?= $h($config['branding']['logo_main'] ?? '') ?>" alt="<?= $h($config['branding']['logo_alt'] ?? '') ?>">
+            <img src="<?= $h($config['branding']['logo_main'] ?? '') ?>" alt="<?= $h($config['branding']['logo_alt'] ?? '') ?>"<?php if (!empty($config['branding']['logo_height'])): ?> style="height:<?= $h($config['branding']['logo_height']) ?>"<?php endif; ?>>
         </a>
         <div class="lp-topstrip-badge">
             <span class="lp-topstrip-dot"></span>

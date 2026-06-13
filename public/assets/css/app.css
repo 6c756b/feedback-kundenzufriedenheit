@@ -178,6 +178,15 @@ h3 { font-size: 16px; font-weight: 700; }
   color: var(--color-navy-40);
   font-size: 13px;
 }
+.nav-user-name {
+  color: var(--color-navy-40);
+  text-decoration: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+  transition: color .15s, background .15s;
+}
+.nav-user-name:hover,
+.nav-user-name.active { color: #fff; background: rgba(255,255,255,.12); }
 
 /* Main Layout */
 .main-content {
@@ -2810,6 +2819,7 @@ body.frontend:has(.sq-page) { background: #faf9f6; }
 .sq-footer a { color: rgba(26,28,40,.45); text-decoration: none; }
 .sq-footer a:hover { color: #86bc24; }
 .sq-footer-links { display: flex; align-items: center; gap: 16px; }
+.sq-footer-github { display: inline-flex; align-items: center; gap: 5px; }
 
 /* ── Modals ── */
 .sq-page .modal { z-index: 200; }

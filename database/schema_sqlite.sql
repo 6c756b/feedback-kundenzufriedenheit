@@ -36,8 +36,14 @@ CREATE TABLE IF NOT EXISTS users (
     role              TEXT    NOT NULL DEFAULT 'none' CHECK(role IN ('none','reader','staff','admin','superadmin')),
     is_sales          INTEGER NOT NULL DEFAULT 0,
     is_projectlead    INTEGER NOT NULL DEFAULT 0,
+    display_name      TEXT    NOT NULL DEFAULT '',
+    job_title         TEXT    NOT NULL DEFAULT '',
+    phone             TEXT    NOT NULL DEFAULT '',
+    signature_image   TEXT    NOT NULL DEFAULT '',
     active            INTEGER NOT NULL DEFAULT 1,
     dashboard_filters TEXT    NULL,
+    password_hash     TEXT    NULL,
+    login_method      TEXT    NOT NULL DEFAULT 'ldap' CHECK(login_method IN ('ldap','local','both')),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -92,7 +98,8 @@ CREATE TABLE IF NOT EXISTS surveys (
     FOREIGN KEY (created_by)        REFERENCES users(id),
     FOREIGN KEY (sales_user_id)     REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (project_lead_id)   REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (metropolregion_id) REFERENCES metropolregionen(id) ON DELETE SET NULL
+    FOREIGN KEY (metropolregion_id) REFERENCES metropolregionen(id) ON DELETE SET NULL,
+    FOREIGN KEY (email_sent_by)     REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_surveys_status     ON surveys(status);
