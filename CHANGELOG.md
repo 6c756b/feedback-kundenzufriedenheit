@@ -15,7 +15,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-## [0.1.1a] - 2026-06-13 (WIP)
+## [0.1.2a] - 2026-06-13
+
+### Added
+
+- CSS architecture: `common.css` (shared base: reset, typography, buttons, form inputs, toggles, badges, flash, modals, pagination) and `backend.css` (sidebar layout, panels, data tables, filter bars, charts, dashboard); `app.css` is now frontend-only
+- `common.css` loaded in the frontend layout (`frontend.php`) alongside `app.css`
+- Thank-you page: topstrip wrapped in `sq-fixed-header` so the header is fixed-position, matching the survey page structure
+
+### Changed
+
+- Backend navigation replaced top navbar with a left sidebar (`be-sidebar`) at 240px; pages use a two-column grid (`be-wrap`) with optional third column via `$panelContent`
+- `app.css` reduced from ~2970 to ~1518 lines; all backend-specific rules (navbar, data table, filter bar, dashboard, login) moved to `backend.css` or `common.css`
+- User and profile forms restructured into two sections separated by a horizontal rule: account/auth fields first, then signature toggle and conditional signature fields below
+- Switched from flash notification to toast messages
+- Frontend header unified: `lp-topstrip` (landing/code-input page) now matches `sq-topstrip` (survey and thank-you pages) — padding `10px 48px`, logo height `26px`, badge color `rgba(255,255,255,.45)`
+
+---
+
+## [0.1.1a] - 2026-06-13
 
 ### Added
 

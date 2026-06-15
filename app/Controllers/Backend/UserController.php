@@ -38,6 +38,13 @@ class UserController
         $sortDir  = strtoupper($request->get('sort_dir', 'ASC')) === 'DESC' ? 'DESC' : 'ASC';
         $users    = User::findAll($sortBy, $sortDir);
         $allowedRoles = $this->allowedRoles();
+
+        $panelUsers     = $users;
+        $panelCurrentId = 0;
+        ob_start();
+        require ROOT . '/app/Views/backend/users/_panel.php';
+        $panelContent = ob_get_clean();
+
         $pageTitle = 'Benutzerverwaltung';
         ob_start();
         require ROOT . '/app/Views/backend/users/index.php';
@@ -49,6 +56,13 @@ class UserController
     {
         $user         = [];
         $allowedRoles = $this->allowedRoles();
+
+        $panelUsers     = User::findAll('name', 'ASC');
+        $panelCurrentId = 0;
+        ob_start();
+        require ROOT . '/app/Views/backend/users/_panel.php';
+        $panelContent = ob_get_clean();
+
         $pageTitle    = 'Neuer Benutzer';
         ob_start();
         require ROOT . '/app/Views/backend/users/form.php';
@@ -89,7 +103,7 @@ class UserController
 
         Logger::backend('user.created', 'user', $id, 'Benutzer angelegt');
         Session::flash('success', 'Benutzer wurde angelegt.');
-        Response::redirect('/backend/benutzer');
+        Response::redirect('/backend/benutzer/' . $id . '/bearbeiten');
     }
 
     public function edit(array $params = []): void
@@ -105,6 +119,13 @@ class UserController
 
         $allowedRoles      = $this->allowedRoles();
         $renderedSignature = !empty($user['display_name']) ? SignatureManager::render($user) : '';
+
+        $panelUsers     = User::findAll('name', 'ASC');
+        $panelCurrentId = (int)$params['id'];
+        ob_start();
+        require ROOT . '/app/Views/backend/users/_panel.php';
+        $panelContent = ob_get_clean();
+
         $pageTitle         = 'Benutzer bearbeiten';
         ob_start();
         require ROOT . '/app/Views/backend/users/form.php';
@@ -169,7 +190,7 @@ class UserController
 
         Logger::backend('user.updated', 'user', $id, 'Benutzer aktualisiert');
         Session::flash('success', 'Benutzer wurde aktualisiert.');
-        Response::redirect('/backend/benutzer');
+        Response::redirect('/backend/benutzer/' . $id . '/bearbeiten');
     }
 
     private function validate(Request $request, ?int $editId, array $allowedRoles): array

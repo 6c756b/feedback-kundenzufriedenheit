@@ -2,7 +2,7 @@
 
 <div class="sq-page sq-page-ty">
 
-    <!-- Topstrip (in document flow, not fixed) -->
+    <div class="sq-fixed-header">
     <div class="sq-topstrip">
         <a href="/" class="sq-logo-link">
             <img src="<?= $h($config['branding']['logo_main'] ?? '') ?>" alt="<?= $h($config['branding']['logo_alt'] ?? '') ?>" class="sq-logo"<?php if (!empty($config['branding']['logo_height'])): ?> style="height:<?= $h($config['branding']['logo_height']) ?>"<?php endif; ?>>
@@ -12,6 +12,7 @@
             <?= $h($config['app']['company_slogan'] ?? 'Einfach. Sicher. Arbeiten.') ?>
         </div>
     </div>
+    </div><!-- .sq-fixed-header -->
 
     <!-- Thank-you content -->
     <div class="sq-ty-main">

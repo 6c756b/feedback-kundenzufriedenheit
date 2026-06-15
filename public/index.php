@@ -111,13 +111,13 @@ $router->get('/backend/fragen/neu',                 [\App\Controllers\Backend\Qu
        ->middleware(['auth', 'role:admin']);
 $router->post('/backend/fragen',                    [\App\Controllers\Backend\QuestionController::class, 'store'])
        ->middleware(['auth', 'role:admin']);
+$router->post('/backend/fragen/sequenz',            [\App\Controllers\Backend\QuestionController::class, 'updateSequence'])
+       ->middleware(['auth', 'role:admin']);
 $router->get('/backend/fragen/{id}/bearbeiten',     [\App\Controllers\Backend\QuestionController::class, 'edit'])
        ->middleware(['auth', 'role:admin']);
 $router->post('/backend/fragen/{id}',               [\App\Controllers\Backend\QuestionController::class, 'update'])
        ->middleware(['auth', 'role:admin']);
 $router->post('/backend/fragen/{id}/loeschen',      [\App\Controllers\Backend\QuestionController::class, 'destroy'])
-       ->middleware(['auth', 'role:admin']);
-$router->post('/backend/fragen/sequenz',            [\App\Controllers\Backend\QuestionController::class, 'updateSequence'])
        ->middleware(['auth', 'role:admin']);
 
 // ── Backend Auswertung ───────────────────────────────────────
@@ -155,6 +155,8 @@ $router->get('/backend/bereiche/neu',               [\App\Controllers\Backend\Ar
        ->middleware(['auth', 'role:admin']);
 $router->post('/backend/bereiche',                  [\App\Controllers\Backend\AreaController::class, 'store'])
        ->middleware(['auth', 'role:admin']);
+$router->post('/backend/bereiche/sortierung',       [\App\Controllers\Backend\AreaController::class, 'updateOrder'])
+       ->middleware(['auth', 'role:admin']);
 $router->get('/backend/bereiche/{id}/bearbeiten',   [\App\Controllers\Backend\AreaController::class, 'edit'])
        ->middleware(['auth', 'role:admin']);
 $router->post('/backend/bereiche/{id}',             [\App\Controllers\Backend\AreaController::class, 'update'])
@@ -166,6 +168,8 @@ $router->get('/backend/metropolregionen',                   [\App\Controllers\Ba
 $router->get('/backend/metropolregionen/neu',               [\App\Controllers\Backend\MetropolregionController::class, 'create'])
        ->middleware(['auth', 'role:admin']);
 $router->post('/backend/metropolregionen',                  [\App\Controllers\Backend\MetropolregionController::class, 'store'])
+       ->middleware(['auth', 'role:admin']);
+$router->post('/backend/metropolregionen/sortierung',       [\App\Controllers\Backend\MetropolregionController::class, 'updateOrder'])
        ->middleware(['auth', 'role:admin']);
 $router->get('/backend/metropolregionen/{id}/bearbeiten',   [\App\Controllers\Backend\MetropolregionController::class, 'edit'])
        ->middleware(['auth', 'role:admin']);

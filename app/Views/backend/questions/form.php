@@ -9,10 +9,17 @@ $action = $isNew ? '/backend/fragen' : '/backend/fragen/' . (int)$question['id']
 $errors = Session::flash('errors') ?? [];
 $type   = $old['type'] ?? 'slider';
 $isActive = !isset($old['active']) || $old['active'];
+
+$effectiveAreaId = (int)($old['area_id'] ?? $preAreaId ?? 0);
+$hasPresetArea   = $effectiveAreaId > 0 && $preArea !== null;
 ?>
 <div class="page-header">
     <h1><?= $isNew ? 'Neue Frage' : 'Frage bearbeiten' ?></h1>
+    <?php if ($hasPresetArea): ?>
+    <a href="/backend/fragen?area_id=<?= $effectiveAreaId ?>" class="btn-ghost">Zurück zu <?= $h($preArea['name']) ?></a>
+    <?php else: ?>
     <a href="/backend/fragen" class="btn-ghost">Zurück</a>
+    <?php endif; ?>
 </div>
 
 <?php if ($errors): ?>
@@ -25,6 +32,18 @@ $isActive = !isset($old['active']) || $old['active'];
     <?= Csrf::field() ?>
 
     <div class="form-grid">
+        <?php if ($hasPresetArea): ?>
+        <input type="hidden" name="area_id" value="<?= $effectiveAreaId ?>">
+        <div class="form-group">
+            <label>Bereich</label>
+            <div class="readonly-field"><?= $h($preArea['name']) ?></div>
+            <?php if (!$preArea['active']): ?>
+            <p style="margin-top:6px;font-size:13px;color:#a05000">
+                Dieser Bereich ist inaktiv – die Frage wird Teilnehmern nicht angezeigt.
+            </p>
+            <?php endif; ?>
+        </div>
+        <?php else: ?>
         <div class="form-group">
             <label for="area_id">Bereich *</label>
             <select id="area_id" name="area_id" required>
@@ -36,30 +55,21 @@ $isActive = !isset($old['active']) || $old['active'];
                 </option>
                 <?php endforeach; ?>
             </select>
-            <?php
-            $selectedArea = null;
-            foreach ($areas as $area) {
-                if ((string)$area['id'] === (string)($old['area_id'] ?? '')) {
-                    $selectedArea = $area;
-                    break;
-                }
-            }
-            if ($selectedArea && !$selectedArea['active']): ?>
-            <p style="margin-top:6px;font-size:13px;color:#a05000">
-                Dieser Bereich ist inaktiv - die Frage wird Teilnehmern nicht angezeigt.
-            </p>
-            <?php endif; ?>
         </div>
+        <?php endif; ?>
+
         <div class="form-group">
             <label for="sequence">Sequenz *</label>
             <input type="number" id="sequence" name="sequence" min="0" required
                    value="<?= (int)($old['sequence'] ?? 0) ?>">
         </div>
+
         <div class="form-group form-full">
             <label for="label_short">Kurzform *</label>
             <input type="text" id="label_short" name="label_short" required
                    value="<?= $h((string)($old['label_short'] ?? '')) ?>">
         </div>
+
         <div class="form-group form-full">
             <label for="label_long">Langform / Fragetext *</label>
             <textarea id="label_long" name="label_long" rows="3" required><?= $h((string)($old['label_long'] ?? '')) ?></textarea>
@@ -98,7 +108,11 @@ $isActive = !isset($old['active']) || $old['active'];
 
     <div class="form-actions">
         <button type="submit" class="btn-primary"><?= $isNew ? 'Frage anlegen' : 'Speichern' ?></button>
+        <?php if ($hasPresetArea): ?>
+        <a href="/backend/fragen?area_id=<?= $effectiveAreaId ?>" class="btn-ghost">Abbrechen</a>
+        <?php else: ?>
         <a href="/backend/fragen" class="btn-ghost">Abbrechen</a>
+        <?php endif; ?>
         <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
             <input type="hidden" name="active" id="active-input" value="<?= $isActive ? '1' : '0' ?>">
             <button type="button"

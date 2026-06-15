@@ -145,7 +145,7 @@ class DashboardController
         $fTotalPages = (int) ceil($fTotal / $perPage);
 
         $frontendLogs = $db->fetchAll(
-            "SELECT l.*, s.customer_name AS survey_customer_name
+            "SELECT l.*, s.customer_name AS survey_customer_name, s.project_name AS survey_project_name
              FROM logs l
              LEFT JOIN surveys s ON s.code = l.survey_code
              WHERE l.actor_type = 'frontend' AND l.created_at >= ?

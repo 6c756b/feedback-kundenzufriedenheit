@@ -11,10 +11,20 @@ use App\Models\Metropolregion;
 
 class MetropolregionController
 {
+    private function buildPanel(int $currentId = 0): string
+    {
+        $panelRegions   = Metropolregion::findAll();
+        $panelCurrentId = $currentId;
+        ob_start();
+        require ROOT . '/app/Views/backend/metropolregionen/_panel.php';
+        return ob_get_clean();
+    }
+
     public function index(array $params = []): void
     {
-        $regions   = Metropolregion::findAll();
-        $pageTitle = 'Metropolregionen';
+        $regions      = Metropolregion::findAll();
+        $panelContent = $this->buildPanel();
+        $pageTitle    = 'Metropolregionen';
         ob_start();
         require ROOT . '/app/Views/backend/metropolregionen/index.php';
         $content = ob_get_clean();
@@ -23,8 +33,9 @@ class MetropolregionController
 
     public function create(array $params = []): void
     {
-        $region    = [];
-        $pageTitle = 'Neue Metropolregion';
+        $region       = [];
+        $panelContent = $this->buildPanel();
+        $pageTitle    = 'Neue Metropolregion';
         ob_start();
         require ROOT . '/app/Views/backend/metropolregionen/form.php';
         $content = ob_get_clean();
@@ -38,11 +49,26 @@ class MetropolregionController
             Response::notFound();
         }
 
-        $pageTitle = 'Metropolregion bearbeiten';
+        $panelContent = $this->buildPanel((int)$params['id']);
+        $pageTitle    = 'Metropolregion bearbeiten';
         ob_start();
         require ROOT . '/app/Views/backend/metropolregionen/form.php';
         $content = ob_get_clean();
         require ROOT . '/app/Views/layout/backend.php';
+    }
+
+    public function updateOrder(array $params = []): void
+    {
+        if (!Csrf::validate()) {
+            Response::json(['error' => 'CSRF'], 403);
+        }
+        $request = new Request();
+        $ids     = $request->post('ids', []);
+        if (!is_array($ids)) {
+            Response::json(['error' => 'Ungültige Daten'], 400);
+        }
+        Metropolregion::updateOrder($ids);
+        Response::json(['ok' => true]);
     }
 
     public function store(array $params = []): void
@@ -67,7 +93,7 @@ class MetropolregionController
 
         Logger::backend('metropolregion.created', 'metropolregion', $id, 'Metropolregion angelegt: ' . $name);
         Session::flash('success', 'Metropolregion wurde angelegt.');
-        Response::redirect('/backend/metropolregionen');
+        Response::redirect('/backend/metropolregionen/' . $id . '/bearbeiten');
     }
 
     public function update(array $params = []): void
@@ -98,7 +124,7 @@ class MetropolregionController
 
         Logger::backend('metropolregion.updated', 'metropolregion', $id, 'Metropolregion aktualisiert: ' . $region['name']);
         Session::flash('success', 'Metropolregion wurde aktualisiert.');
-        Response::redirect('/backend/metropolregionen');
+        Response::redirect('/backend/metropolregionen/' . $id . '/bearbeiten');
     }
 
     public function destroy(array $params = []): void

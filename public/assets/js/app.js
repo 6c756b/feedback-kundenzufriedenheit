@@ -864,6 +864,71 @@ function initSignatureEditor() {
     });
 }
 
+// ── Autocomplete ─────────────────────────────────────────────
+
+function initAutocomplete() {
+    document.querySelectorAll('input[data-ac]').forEach(input => {
+        const list     = JSON.parse(input.dataset.ac || '[]');
+        const dropdown = input.parentElement.querySelector('.ac-dropdown');
+        if (!dropdown) return;
+
+        let activeIdx = -1;
+
+        function show(items) {
+            activeIdx = -1;
+            dropdown.innerHTML = '';
+            items.forEach((text, i) => {
+                const item = document.createElement('div');
+                item.className = 'ac-item';
+                item.textContent = text;
+                item.addEventListener('mousedown', e => {
+                    e.preventDefault();
+                    input.value = text;
+                    hide();
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+                dropdown.appendChild(item);
+            });
+            dropdown.hidden = items.length === 0;
+        }
+
+        function hide() {
+            dropdown.hidden = true;
+            activeIdx = -1;
+        }
+
+        function setActive(idx) {
+            const items = dropdown.querySelectorAll('.ac-item');
+            items.forEach(el => el.classList.remove('is-active'));
+            activeIdx = Math.max(-1, Math.min(idx, items.length - 1));
+            if (activeIdx >= 0) items[activeIdx].classList.add('is-active');
+        }
+
+        input.addEventListener('input', () => {
+            const q = input.value.trim().toLowerCase();
+            if (!q) { hide(); return; }
+            const matches = list.filter(s => s.toLowerCase().includes(q)).slice(0, 10);
+            show(matches);
+        });
+
+        input.addEventListener('keydown', e => {
+            if (dropdown.hidden) return;
+            const items = dropdown.querySelectorAll('.ac-item');
+            if (e.key === 'ArrowDown')  { e.preventDefault(); setActive(activeIdx + 1); }
+            if (e.key === 'ArrowUp')    { e.preventDefault(); setActive(activeIdx - 1); }
+            if (e.key === 'Enter' && activeIdx >= 0) {
+                e.preventDefault();
+                input.value = items[activeIdx].textContent;
+                hide();
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (e.key === 'Escape') hide();
+        });
+
+        input.addEventListener('blur', () => setTimeout(hide, 150));
+    });
+}
+
 // ── Init ─────────────────────────────────────────────────────
 
 document.addEventListener('submit', e => {
@@ -884,6 +949,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initAreaFilter();
     initToggleButtons();
     initAutoFilter();
+    initAutocomplete();
 
     // Code-Input: automatisch Kleinschreibung + Trim
     const codeInput = document.getElementById('code');
