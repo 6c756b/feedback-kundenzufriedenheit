@@ -231,12 +231,14 @@ body.backend {
 }
 .be-panel-header-link:hover { background: #eef0f3; color: var(--color-navy); }
 .be-panel-header-link.is-active { background: #eef5e2; color: var(--color-primary); border-color: rgba(134,188,36,.3); }
+.be-panel-header-icon { width: 13px; height: 13px; }
 
 .be-panel-list {
   flex: 1;
   overflow-y: auto;
   padding: 8px 0;
 }
+.be-panel-list--flush { padding: 0; }
 
 .be-panel-item {
   display: flex;
@@ -279,6 +281,7 @@ body.backend {
 }
 
 .be-panel-item.is-active .be-panel-item-meta { color: var(--color-navy-60); }
+.be-panel-item-meta--inactive { color: #c0392b; font-size: 10px; font-weight: 700; }
 
 .be-panel-add {
   display: flex;

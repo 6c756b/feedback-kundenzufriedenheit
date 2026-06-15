@@ -929,6 +929,19 @@ function initAutocomplete() {
     });
 }
 
+// ── User Panel ───────────────────────────────────────────────
+
+function initUserPanel() {
+    document.querySelectorAll('.be-panel-group-header').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const body = btn.nextElementSibling;
+            const open = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+            body.hidden = open;
+        });
+    });
+}
+
 // ── Init ─────────────────────────────────────────────────────
 
 document.addEventListener('submit', e => {
@@ -950,6 +963,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initToggleButtons();
     initAutoFilter();
     initAutocomplete();
+    initUserPanel();
 
     // Code-Input: automatisch Kleinschreibung + Trim
     const codeInput = document.getElementById('code');

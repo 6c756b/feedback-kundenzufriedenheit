@@ -11,22 +11,27 @@ $user = Auth::user();
 Response::setHeader('X-Frame-Options', 'DENY');
 Response::setHeader('X-Content-Type-Options', 'nosniff');
 
-function e(string $val): string {
-    return htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
+if (!function_exists('e')) {
+    function e(string $val): string {
+        return htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
+    }
 }
-$config = require ROOT . '/config.php';
+$config  = require ROOT . '/config.php';
+$appVersion = is_file(ROOT . '/VERSION') ? trim(file_get_contents(ROOT . '/VERSION')) : '';
 $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
 
-function beNavLink(string $href, string $label, string $icon, string $currentUri, bool $startsWith = true): string {
-    $active = $startsWith ? str_starts_with($currentUri, $href) : $currentUri === $href;
-    if ($href === '/backend' && $startsWith) {
-        $active = $currentUri === '/backend';
+if (!function_exists('beNavLink')) {
+    function beNavLink(string $href, string $label, string $icon, string $currentUri, bool $startsWith = true): string {
+        $active = $startsWith ? str_starts_with($currentUri, $href) : $currentUri === $href;
+        if ($href === '/backend' && $startsWith) {
+            $active = $currentUri === '/backend';
+        }
+        $cls = $active ? ' is-active' : '';
+        return '<a href="' . htmlspecialchars($href, ENT_QUOTES) . '" class="be-nav-link' . $cls . '">'
+             . '<svg class="be-nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">' . $icon . '</svg>'
+             . htmlspecialchars($label, ENT_QUOTES)
+             . '</a>';
     }
-    $cls = $active ? ' is-active' : '';
-    return '<a href="' . htmlspecialchars($href, ENT_QUOTES) . '" class="be-nav-link' . $cls . '">'
-         . '<svg class="be-nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">' . $icon . '</svg>'
-         . htmlspecialchars($label, ENT_QUOTES)
-         . '</a>';
 }
 
 $icons = [
@@ -95,6 +100,9 @@ $icons = [
             <?php endif; ?>
         </nav>
 
+        <?php if ($appVersion): ?>
+        <div class="be-sidebar-version">v<?= e($appVersion) ?></div>
+        <?php endif; ?>
         <div class="be-sidebar-footer">
             <div class="be-sidebar-user">
                 <a href="/backend/profil" class="be-sidebar-user-name" title="Profil bearbeiten">
