@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PORT="${KZB_PORT:-8080}"
-DB_PATH="$ROOT/database/kzb.sqlite"
+DB_PATH="$ROOT/database/feedback.sqlite"
 
 cd "$ROOT"
 

@@ -15,6 +15,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.1.3a] - TBD
+
+### Added
+
+- **REST API** for external CRM integration at `/api/v1/surveys`
+  - Bearer token authentication via API keys (SHA-256 hashed, `fbk_` prefix)
+  - `POST /api/v1/surveys` - create a survey from an external system; optional `customer_email`, `contact_person`, `project_id`, `reference_requested` (bool), `created_by` (name string), `crm_id` for external reference
+  - `GET /api/v1/surveys/{id}` - retrieve survey details; response includes `backend_url` pointing to the backend evaluation page
+  - Per-key read/write permission checks (`can_read`, `can_write`) and expiry validation
+- **API Key management** at `/backend/api-keys` (admin and superadmin)
+  - Create keys with name/description, explicit read and write permissions, and an optional expiry date
+  - One-time plaintext key display after creation with in-page clipboard copy
+  - Keys listed in a table with permission badges (both always visible; inactive grayed out), expiry, last-used timestamp, and status
+- **Responsive mobile navigation** for the backend
+  - Fixed top bar (48px) with hamburger button on screens ≤ 768px
+  - Off-canvas sidebar drawer with semi-transparent overlay; closes via overlay click, ESC, or nav-link click
+  - Collapsible context panel (middle column) with a toggle button; starts collapsed on mobile
+- `crm_id` column on `surveys` table for external reference tracking (non-unique)
+
+### Changed
+
+- `surveys.created_by` is now nullable; API-created surveys may omit the field entirely
+
+### Fixed
+
+- `login_attempts` table missing from SQLite schema on fresh installs
+
+---
+
 ## [0.1.2a] - 2026-06-13
 
 ### Added

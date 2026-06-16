@@ -102,6 +102,7 @@ $icons = [
             <div class="be-nav-group-label">Administration</div>
             <?= beNavLink('/backend/fragen', 'Fragen', $icons['questions'], $uri) ?>
             <?= beNavLink('/backend/benutzer', 'Benutzer', $icons['users'], $uri) ?>
+            <?= beNavLink('/backend/api-keys', 'API Keys', $icons['apikeys'], $uri) ?>
             <?php endif; ?>
 
             <?php if (Auth::hasRole('superadmin')): ?>
@@ -152,7 +153,7 @@ $icons = [
             <script>window.__chartData = <?= json_encode($chartData) ?>;</script>
             <?php endif; ?>
             <?php require ROOT . '/app/Views/partials/flash.php' ?>
-            <?= $content ?>
+            <?= $content ?? '' ?>
         </main>
     </div>
 

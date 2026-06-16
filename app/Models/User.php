@@ -46,6 +46,30 @@ class User
         );
     }
 
+    public static function findSalesByName(string $name): ?array
+    {
+        return Database::getInstance()->fetchOne(
+            'SELECT * FROM users WHERE name = ? AND is_sales = 1 AND active = 1',
+            [$name]
+        );
+    }
+
+    public static function findProjectLeadByName(string $name): ?array
+    {
+        return Database::getInstance()->fetchOne(
+            'SELECT * FROM users WHERE name = ? AND is_projectlead = 1 AND active = 1',
+            [$name]
+        );
+    }
+
+    public static function findByName(string $name): ?array
+    {
+        return Database::getInstance()->fetchOne(
+            'SELECT * FROM users WHERE name = ? AND active = 1',
+            [$name]
+        );
+    }
+
     public static function create(array $data): int
     {
         return Database::getInstance()->insert('users', $data);

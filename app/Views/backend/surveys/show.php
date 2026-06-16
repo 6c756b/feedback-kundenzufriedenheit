@@ -15,6 +15,39 @@ $isOpenOrStarted  = in_array($survey['status'], ['open', 'started'], true);
 
 $smtpConfig    = (require ROOT . '/config.php')['smtp'] ?? [];
 $smtpAvailable = !empty($smtpConfig['host']);
+
+$personSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd"/></svg>';
+
+$userChip = function(?string $img, ?string $name) use ($h, $personSvg): string {
+    if (!$name) return '<span class="text-muted">–</span>';
+    $avatar = $img
+        ? '<img src="' . $h($img) . '" class="user-avatar" alt="">'
+        : '<span class="user-avatar user-avatar--icon">' . $personSvg . '</span>';
+    return '<span class="user-chip">' . $avatar . '<span>' . $h($name) . '</span></span>';
+};
+
+$personCard = function(string $title, ?string $name, ?string $img, ?string $jobTitle, ?string $email, ?string $phone) use ($h, $personSvg): void {
+    $avatar = $img
+        ? '<img src="' . $h($img) . '" class="user-avatar user-avatar-lg" alt="">'
+        : '<span class="user-avatar user-avatar-lg user-avatar--icon">' . $personSvg . '</span>';
+    echo '<div class="detail-card detail-card--person">';
+    echo '<div class="detail-card-title">' . $h($title) . '</div>';
+    if ($name) {
+        echo '<div class="person-header">' . $avatar;
+        echo '<div class="person-info"><span class="person-name">' . $h($name) . '</span>';
+        if ($jobTitle) echo '<span class="person-role">' . $h($jobTitle) . '</span>';
+        echo '</div></div>';
+        if ($email || $phone) {
+            echo '<dl class="detail-list person-card-contacts">';
+            if ($email) echo '<div class="detail-row"><dt>E-Mail</dt><dd><a class="detail-email" href="mailto:' . $h($email) . '">' . $h($email) . '</a></dd></div>';
+            if ($phone) echo '<div class="detail-row"><dt>Telefon</dt><dd><a href="tel:' . $h($phone) . '">' . $h($phone) . '</a></dd></div>';
+            echo '</dl>';
+        }
+    } else {
+        echo '<span class="text-muted">–</span>';
+    }
+    echo '</div>';
+};
 ?>
 
 <!-- Seiten-Header -->
@@ -26,8 +59,13 @@ $smtpAvailable = !empty($smtpConfig['host']);
             </span>
         </div>
         <h1 style="margin:0;line-height:1.2"><?= $h($survey['customer_name']) ?></h1>
-        <?php if ($survey['project_name']): ?>
-        <p style="margin:4px 0 0;color:var(--color-navy-60);font-size:14px"><?= $h($survey['project_name']) ?></p>
+        <?php
+            $subtitle = '';
+            if ($survey['project_id'])   $subtitle  = $h($survey['project_id']) . ' | ';
+            if ($survey['project_name']) $subtitle .= $h($survey['project_name']);
+        ?>
+        <?php if ($subtitle): ?>
+        <p style="margin:4px 0 0;color:var(--color-navy-60);font-size:14px"><?= $subtitle ?></p>
         <?php endif; ?>
     </div>
     <div class="header-actions">
@@ -58,12 +96,56 @@ $smtpAvailable = !empty($smtpConfig['host']);
 <!-- Detail-Karten -->
 <div class="survey-detail-grid">
 
-    <!-- Kontakt -->
+    <!-- Zeile 1: Vertrieb | Projektleitung | Erstellt -->
+    <?php $personCard(
+        'Vertrieb',
+        $survey['sales_user_name']      ?? null,
+        $survey['sales_user_image']     ?? null,
+        $survey['sales_user_job_title'] ?? null,
+        $survey['sales_user_email']     ?? null,
+        $survey['sales_user_phone']     ?? null
+    ); ?>
+    <?php $personCard(
+        'Projektleitung',
+        $survey['project_lead_name']      ?? null,
+        $survey['project_lead_image']     ?? null,
+        $survey['project_lead_job_title'] ?? null,
+        $survey['project_lead_email']     ?? null,
+        $survey['project_lead_phone']     ?? null
+    ); ?>
+    <div class="detail-card detail-card--person">
+        <div class="detail-card-title">Erstellt</div>
+        <div class="person-header">
+            <?php if (!empty($survey['created_by_image'])): ?>
+            <img src="<?= $h($survey['created_by_image']) ?>" class="user-avatar user-avatar-lg" alt="">
+            <?php else: ?>
+            <span class="user-avatar user-avatar-lg user-avatar--icon"><?= $personSvg ?></span>
+            <?php endif; ?>
+            <div class="person-info">
+                <span class="person-name"><?= $h($survey['created_by_name'] ?? '–') ?></span>
+                <span class="person-role"><?= $h(date('d.m.Y H:i', strtotime($survey['created_at']))) ?> Uhr</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zeile 2: Bereiche | Kundenkontakt | Daten -->
     <div class="detail-card">
-        <div class="detail-card-title">Kontakt</div>
+        <div class="detail-card-title">Bereiche</div>
+        <?php if ($survey['area_names']): ?>
+        <ul class="detail-area-list">
+            <?php foreach (explode(', ', $survey['area_names']) as $areaName): ?>
+            <li><?= $h(trim($areaName)) ?></li>
+            <?php endforeach; ?>
+        </ul>
+        <?php else: ?>
+        <span class="text-muted">–</span>
+        <?php endif; ?>
+    </div>
+    <div class="detail-card">
+        <div class="detail-card-title">Kundenkontakt</div>
         <dl class="detail-list">
             <?php
-                $salutation = $salutationLabels[$survey['contact_salutation'] ?? ''] ?? '';
+                $salutation  = $salutationLabels[$survey['contact_salutation'] ?? ''] ?? '';
                 $contactFull = trim(($salutation ? $salutation . ' ' : '') . $survey['contact_person']);
             ?>
             <div class="detail-row">
@@ -72,53 +154,27 @@ $smtpAvailable = !empty($smtpConfig['host']);
             </div>
             <div class="detail-row">
                 <dt>E-Mail</dt>
-                <dd><?= $survey['contact_email'] ? '<a href="mailto:' . $h($survey['contact_email']) . '">' . $h($survey['contact_email']) . '</a>' : '<span class="text-muted">–</span>' ?></dd>
+                <dd><?= $survey['contact_email']
+                    ? '<a class="detail-email" href="mailto:' . $h($survey['contact_email']) . '">' . $h($survey['contact_email']) . '</a>'
+                    : '<span class="text-muted">–</span>' ?></dd>
             </div>
         </dl>
     </div>
-
-    <!-- Projekt -->
     <div class="detail-card">
-        <div class="detail-card-title">Projekt</div>
-        <dl class="detail-list">
-            <div class="detail-row">
-                <dt>Projekt-ID</dt>
-                <dd><?= $survey['project_id'] ? $h($survey['project_id']) : '<span class="text-muted">–</span>' ?></dd>
-            </div>
-            <div class="detail-row">
-                <dt>Bereiche</dt>
-                <dd><?= $survey['area_names'] ? $h($survey['area_names']) : '<span class="text-muted">–</span>' ?></dd>
-            </div>
-            <div class="detail-row">
-                <dt>Vertrieb</dt>
-                <dd><?= $survey['sales_user_name'] ? $h($survey['sales_user_name']) : '<span class="text-muted">–</span>' ?></dd>
-            </div>
-            <div class="detail-row">
-                <dt>Projektleitung</dt>
-                <dd><?= !empty($survey['project_lead_name']) ? $h($survey['project_lead_name']) : '<span class="text-muted">–</span>' ?></dd>
-            </div>
-            <div class="detail-row">
-                <dt>Metropolregion</dt>
-                <dd><?= !empty($survey['metropolregion_name']) ? $h($survey['metropolregion_name']) : '<span class="text-muted">–</span>' ?></dd>
-            </div>
-        </dl>
-    </div>
-
-    <!-- Versand -->
-    <div class="detail-card">
-        <div class="detail-card-title">Versand</div>
+        <div class="detail-card-title">Daten</div>
         <dl class="detail-list">
             <div class="detail-row">
                 <dt>Code</dt>
-                <dd><code style="background:#f0f1f4;padding:2px 6px;border-radius:4px;font-size:13px"><?= $h($survey['code']) ?></code></dd>
+                <dd><code><?= $h($survey['code']) ?></code></dd>
             </div>
             <div class="detail-row">
-                <dt>E-Mail</dt>
+                <dt>E-Mail-Versand</dt>
                 <dd>
                     <?php if ($survey['email_sent_at']): ?>
-                        <?= $h(date('d.m.Y H:i', strtotime($survey['email_sent_at']))) ?> Uhr
-                        &middot; <?= $h($survey['email_sent_by_name'] ?? '–') ?>
-                        &middot; <?= $survey['email_sent_method'] === 'system' ? 'System' : 'Outlook' ?>
+                        <span class="detail-row-stack">
+                            <span><?= $h(date('d.m.Y H:i', strtotime($survey['email_sent_at']))) ?> Uhr</span>
+                            <span class="text-muted text-small"><?= $h($survey['email_sent_by_name'] ?? '–') ?> &middot; <?= $survey['email_sent_method'] === 'system' ? 'System' : 'Outlook' ?></span>
+                        </span>
                     <?php else: ?>
                         <span class="text-muted">Noch nicht versendet</span>
                     <?php endif; ?>
@@ -127,42 +183,38 @@ $smtpAvailable = !empty($smtpConfig['host']);
         </dl>
     </div>
 
-    <!-- Verlauf -->
+    <!-- Zeile 3: Metropolregion | Referenz -->
     <div class="detail-card">
-        <div class="detail-card-title">Verlauf</div>
-        <dl class="detail-list">
-            <div class="detail-row">
-                <dt>Erstellt von</dt>
-                <dd><?= $h($survey['created_by_name']) ?> &middot; <?= $h(date('d.m.Y H:i', strtotime($survey['created_at']))) ?> Uhr</dd>
-            </div>
-            <div class="detail-row">
-                <dt>Referenz</dt>
-                <dd>
-                    <?php if ($survey['reference_requested']): ?>
-                        <?php if ($survey['reference_granted'] === null): ?>
-                            <span class="badge badge-completed">Angefragt</span>
-                        <?php elseif ($survey['reference_granted']): ?>
-                            <span class="badge badge-open">Erteilt</span>
-                        <?php else: ?>
-                            <span class="text-muted">Abgelehnt</span>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <span class="text-muted">Nicht angefragt</span>
-                    <?php endif; ?>
-                </dd>
-            </div>
-        </dl>
+        <div class="detail-card-title">Metropolregion</div>
+        <span class="detail-single-value">
+            <?= !empty($survey['metropolregion_name']) ? $h($survey['metropolregion_name']) : '<span class="text-muted">–</span>' ?>
+        </span>
     </div>
-
-    <?php if ($survey['internal_notes']): ?>
-    <!-- Notizen -->
-    <div class="detail-card detail-card--full">
-        <div class="detail-card-title">Interne Anmerkungen</div>
-        <p style="white-space:pre-wrap;margin:0;font-size:14px;color:var(--color-navy-80);line-height:1.6"><?= $h($survey['internal_notes']) ?></p>
+    <div class="detail-card">
+        <div class="detail-card-title">Referenz</div>
+        <span class="detail-single-value">
+            <?php if ($survey['reference_requested']): ?>
+                <?php if ($survey['reference_granted'] === null): ?>
+                    <span class="badge badge-completed">Angefragt</span>
+                <?php elseif ($survey['reference_granted']): ?>
+                    <span class="badge badge-open">Erteilt</span>
+                <?php else: ?>
+                    <span class="text-muted">Abgelehnt</span>
+                <?php endif; ?>
+            <?php else: ?>
+                <span class="text-muted">Nicht angefragt</span>
+            <?php endif; ?>
+        </span>
     </div>
-    <?php endif; ?>
 
 </div>
+
+<?php if ($survey['internal_notes']): ?>
+<div class="detail-card" style="margin-top:16px">
+    <div class="detail-card-title">Interne Anmerkungen</div>
+    <p style="white-space:pre-wrap;margin:0;font-size:14px;color:var(--color-navy-80);line-height:1.6"><?= $h($survey['internal_notes']) ?></p>
+</div>
+<?php endif; ?>
 
 <?php if (!empty($allSignatures)): ?>
 <script>

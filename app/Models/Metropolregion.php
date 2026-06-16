@@ -20,6 +20,13 @@ class Metropolregion
         );
     }
 
+    public static function findByName(string $name): ?array
+    {
+        return Database::getInstance()->fetchOne(
+            'SELECT * FROM metropolregionen WHERE name = ?', [$name]
+        );
+    }
+
     public static function create(array $data): int
     {
         $db = Database::getInstance();
