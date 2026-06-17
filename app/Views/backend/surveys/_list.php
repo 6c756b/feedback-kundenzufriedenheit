@@ -69,7 +69,7 @@ $sortLink = function(string $field, string $label) use ($filters, $sortBy, $sort
             <td><?= str_replace(', ', '<br>', $h($survey['area_names'] ?? '')) ?></td>
             <td><span class="badge badge-<?= $h($survey['status']) ?>"><?= $h($statusLabels[$survey['status']] ?? $survey['status']) ?></span></td>
             <td class="text-muted"><?= $h(date('d.m.Y', strtotime($survey['created_at']))) ?></td>
-            <td><?= $h($survey['created_by_name']) ?></td>
+            <td><?= $survey['created_by_name'] ? $h($survey['created_by_name']) : '<span class="text-muted">–</span>' ?></td>
             <td><code><?= $h($survey['code']) ?></code></td>
             <td class="col-icon">
                 <?php if ($survey['email_sent_at']): ?>

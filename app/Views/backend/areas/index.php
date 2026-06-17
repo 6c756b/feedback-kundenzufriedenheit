@@ -35,8 +35,8 @@ $h = fn(string $v) => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
     <?php
         $qActive   = (int)$area['q_active'];
         $qInactive = (int)$area['q_inactive'];
-        $sOpen     = (int)$area['s_open'];
-        $sEval     = (int)$area['s_evaluation'];
+        $sOpen     = (int)$area['s_open'] + (int)$area['s_started'];
+        $sEval     = (int)$area['s_completed'] + (int)$area['s_evaluation'];
         $sArch     = (int)$area['s_archived'];
         $isActive  = (bool)$area['active'];
     ?>

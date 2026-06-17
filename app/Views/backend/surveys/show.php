@@ -74,7 +74,7 @@ $personCard = function(string $title, ?string $name, ?string $img, ?string $jobT
         <?php endif; ?>
         <?php if (Auth::hasRole('staff') && $isOpenOrStarted): ?>
         <button type="button" class="btn-primary" data-outlook-id="<?= (int)$survey['id'] ?>">
-            E-Mailversand
+            Versand
         </button>
         <form method="post" action="/backend/befragungen/<?= (int)$survey['id'] ?>/abbrechen"
               onsubmit="return confirm('Befragung wirklich abbrechen?')" style="display:inline">
@@ -173,7 +173,7 @@ $personCard = function(string $title, ?string $name, ?string $img, ?string $jobT
                     <?php if ($survey['email_sent_at']): ?>
                         <span class="detail-row-stack">
                             <span><?= $h(date('d.m.Y H:i', strtotime($survey['email_sent_at']))) ?> Uhr</span>
-                            <span class="text-muted text-small"><?= $h($survey['email_sent_by_name'] ?? '–') ?> &middot; <?= $survey['email_sent_method'] === 'system' ? 'System' : 'Outlook' ?></span>
+                            <span class="text-muted text-small"><?= $h($survey['email_sent_by_name'] ?? '–') ?> &middot; <?= $survey['email_sent_method'] === 'system' ? 'Über das System versendet' : 'Extern versendet' ?></span>
                         </span>
                     <?php else: ?>
                         <span class="text-muted">Noch nicht versendet</span>
@@ -274,18 +274,18 @@ window.__signatures = <?= json_encode(array_column($allSignatures, 'content', 's
         </div>
         <div class="modal-footer">
             <?php if ($smtpAvailable && $isOpenOrStarted): ?>
-            <button type="submit" form="email-send-form" class="btn-primary">E-Mail senden</button>
+            <button type="submit" form="email-send-form" class="btn-primary"
+                    onclick="return confirm('Diese E-Mail jetzt an <?= $h(addslashes($survey['contact_email'] ?? 'den Kunden')) ?> senden?')">E-Mail senden</button>
             <?php endif; ?>
             <?php if ($isOpenOrStarted): ?>
             <form method="post" style="display:contents"
                   action="/backend/befragungen/<?= (int)$survey['id'] ?>/email-bestaetigen"
-                  onsubmit="return confirm('Outlook-Versand als gesendet markieren?')">
+                  onsubmit="return confirm('Diese E-Mail-Einladung wird hiermit als versendet markiert. Dabei wird keine E-Mail über das System ausgelöst. Fortfahren?')">
                 <?= Csrf::field() ?>
-                <button type="submit" class="btn-ghost">Outlook ✓</button>
+                <button type="submit" class="btn-ghost">Als versendet markieren ✓</button>
             </form>
             <?php endif; ?>
             <button type="button" id="copy-outlook" class="btn-ghost">Kopieren</button>
-            <button type="button" class="btn-ghost" data-close-modal>Schließen</button>
         </div>
     </div>
 </div>

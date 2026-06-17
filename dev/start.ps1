@@ -35,10 +35,12 @@ try {
 
     Write-Host "----------------------------------------------"
     Write-Host "  Feedback Entwicklungsserver"
-    Write-Host "  http://localhost:$PORT"
+    $LocalIP = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notmatch 'Loopback' -and $_.IPAddress -ne '127.0.0.1' } | Select-Object -First 1).IPAddress
+    Write-Host "  http://localhost:$PORT  (lokal)"
+    if ($LocalIP) { Write-Host "  http://${LocalIP}:$PORT  (Netzwerk)" }
     Write-Host "  Beenden mit Ctrl+C"
     Write-Host "----------------------------------------------"
-    php -S "localhost:$PORT" -t "public" "public\router.php"
+    php -S "0.0.0.0:$PORT" -t "public" "public\router.php"
 } finally {
     Pop-Location
 }

@@ -33,7 +33,7 @@ class Survey
             esb.name AS email_sent_by_name,
             mr.name  AS metropolregion_name
         FROM surveys s
-        JOIN  users u   ON u.id   = s.created_by
+        LEFT JOIN users u   ON u.id   = s.created_by
         LEFT JOIN users su  ON su.id  = s.sales_user_id
         LEFT JOIN users pl  ON pl.id  = s.project_lead_id
         LEFT JOIN users esb ON esb.id = s.email_sent_by

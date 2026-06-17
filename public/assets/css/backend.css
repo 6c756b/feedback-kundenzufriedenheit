@@ -1540,7 +1540,7 @@ body.backend .flash-close:hover { opacity: 1; }
 
 .q-area-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
 }
 
@@ -1616,6 +1616,44 @@ body.backend .flash-close:hover { opacity: 1; }
   font-size: 12px;
   color: var(--color-navy-40);
   margin-top: auto;
+}
+
+.q-area-avg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 0;
+  border-top: 1px solid var(--color-gray-40);
+}
+.q-area-avg-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.q-area-avg-score {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-navy);
+  line-height: 1;
+}
+.q-area-avg-label {
+  font-size: 11px;
+  color: var(--color-navy-60);
+}
+.q-area-avg-bar {
+  height: 4px;
+  background: var(--color-gray-40);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.q-area-avg-bar-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.q-area-surveys {
+  flex-wrap: wrap;
 }
 
 /* ============================================================
