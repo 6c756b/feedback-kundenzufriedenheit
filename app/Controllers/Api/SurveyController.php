@@ -87,6 +87,7 @@ class SurveyController
         $projectId          = trim($body['project_id'] ?? '');
         $referenceRequested = !empty($body['reference_requested']) ? 1 : 0;
         $crmId              = isset($body['crm_id']) ? (int)$body['crm_id'] : null;
+        $internalNotes      = trim($body['internal_notes'] ?? '') ?: null;
 
         // --- created_by (optional, per Name) ---
         $createdBy = null;
@@ -117,6 +118,7 @@ class SurveyController
             'project_lead_id'   => $projectLeadId,
             'metropolregion_id' => $metropolregionId,
             'status'            => 'open',
+            'internal_notes'    => $internalNotes,
             'created_by'        => $createdBy,
         ]);
 
