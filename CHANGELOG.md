@@ -1,133 +1,67 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-
 ---
 
 ## [Unreleased]
 
-- Reference management improvements
-- better dummy logos and hero image
-- custom coloring
-- some more landing-page designs (maybe)
+- Referenzmanagement überarbeitung
+- Logos und Hero-Bild
+- Farbschema anpassbar
 
 ---
 
-## [0.1.3a] - TBD
+## [0.1.3a] - TBD (WIP)
 
-### Added
+### Neu
 
-- **REST API** for external CRM integration at `/api/v1/surveys`
-  - Bearer token authentication via API keys (SHA-256 hashed, `fbk_` prefix)
-  - `POST /api/v1/surveys` - create a survey from an external system; optional `customer_email`, `contact_person`, `project_id`, `reference_requested` (bool), `created_by` (name string), `crm_id` for external reference
-  - `GET /api/v1/surveys/{id}` - retrieve survey details; response includes `backend_url` pointing to the backend evaluation page
-  - Per-key read/write permission checks (`can_read`, `can_write`) and expiry validation
-- **API Key management** at `/backend/api-keys` (admin and superadmin)
-  - Create keys with name/description, explicit read and write permissions, and an optional expiry date
-  - One-time plaintext key display after creation with in-page clipboard copy
-  - Keys listed in a table with permission badges (both always visible; inactive grayed out), expiry, last-used timestamp, and status
-- **Responsive mobile navigation** for the backend
-  - Fixed top bar (48px) with hamburger button on screens ≤ 768px
-  - Off-canvas sidebar drawer with semi-transparent overlay; closes via overlay click, ESC, or nav-link click
-  - Collapsible context panel (middle column) with a toggle button; starts collapsed on mobile
-- `crm_id` column on `surveys` table for external reference tracking (non-unique)
+- **CRM-Anbindung:** Befragungen können aus einem externen CRM-System heraus angelegt und abgerufen werden
+- **API-Schlüsselverwaltung** unter Einstellungen: Schlüssel mit Namen, Berechtigungen (lesen/schreiben) und optionalem Ablaufdatum; einmalige Anzeige des Schlüssels nach Erstellung
+- **Mobile Navigation:** Backend auf kleinen Bildschirmen nutzbar — aufklappbare Seitenleiste, zusammenklappbares Kontextpanel
+- Referenzstatus (erteilt / abgelehnt) wird bei der CRM-Synchronisation zurückgemeldet
 
-### Changed
+### Behoben
 
-- `surveys.created_by` is now nullable; API-created surveys may omit the field entirely
-
-### Fixed
-
-- `login_attempts` table missing from SQLite schema on fresh installs
+- Frageanzahl in der Bereichs-Navigation wurde auf der Bearbeitungsseite nicht angezeigt
 
 ---
 
 ## [0.1.2a] - 2026-06-13
 
-### Added
+### Geändert
 
-- CSS architecture: `common.css` (shared base: reset, typography, buttons, form inputs, toggles, badges, flash, modals, pagination) and `backend.css` (sidebar layout, panels, data tables, filter bars, charts, dashboard); `app.css` is now frontend-only
-- `common.css` loaded in the frontend layout (`frontend.php`) alongside `app.css`
-- Thank-you page: topstrip wrapped in `sq-fixed-header` so the header is fixed-position, matching the survey page structure
-
-### Changed
-
-- Backend navigation replaced top navbar with a left sidebar (`be-sidebar`) at 240px; pages use a two-column grid (`be-wrap`) with optional third column via `$panelContent`
-- `app.css` reduced from ~2970 to ~1518 lines; all backend-specific rules (navbar, data table, filter bar, dashboard, login) moved to `backend.css` or `common.css`
-- User and profile forms restructured into two sections separated by a horizontal rule: account/auth fields first, then signature toggle and conditional signature fields below
-- Switched from flash notification to toast messages
-- Frontend header unified: `lp-topstrip` (landing/code-input page) now matches `sq-topstrip` (survey and thank-you pages) — padding `10px 48px`, logo height `26px`, badge color `rgba(255,255,255,.45)`
+- Backend-Navigation: obere Navigationsleiste durch linke Seitenleiste ersetzt
+- Benachrichtigungen erscheinen jetzt als Toast-Meldungen statt als Seitenblock
+- Benutzer- und Profilformular neu gegliedert
 
 ---
 
 ## [0.1.1a] - 2026-06-13
 
-### Added
+### Neu
 
-- Per-user login method: `ldap`, `local` (password only), or `both` (LDAP with local password fallback)
-- Database column `login_method` on `users` table (migration `002_add_login_method.sql`)
-- Login method selector in user edit form
-- Migration runner (`database/migrate_sqlite.php`) applies pending `.sql` migrations from `database/migrations/` and tracks applied migrations in `_migrations` table
-- `dev/start.ps1`: PowerShell equivalent of `dev/start.sh` for Windows development
-- `branding.logo_height` config key: optional CSS height for the logo in the survey header (e.g. `'56px'`)
-- Backend nav: username is a clickable link to the profile page
+- Pro Benutzer einstellbare Anmeldemethode: LDAP, lokales Passwort oder beides
+- Benutzername in der Navigation als Link zur eigenen Profilseite
 
-### Changed
+### Geändert
 
-- Auth flow now reads per-user `login_method` instead of always falling back to local password on LDAP failure; LDAP-only users have no password fallback
-- Auto-provisioned users (first LDAP login) receive `login_method = 'ldap'`
-- User edit form reorganised: left column for auth fields, right column for signature fields (Anzeigename, Berufsbezeichnung, Telefon, Profilbild); Rolle / Flags below
-- Profile form field order
-
-### Fixed
-
-- SQLite schema brought in sync with MySQL schema (missing columns added)
-- Session garbage collection probability and divisor now set explicitly (`gc_probability=1`, `gc_divisor=100`) to ensure reliable cleanup
+- LDAP-Benutzer ohne lokales Passwort können sich nicht mehr über das Passwort-Formular anmelden
 
 ---
 
-## [0.1a] - 2026-06-10 (WIP)
+## [0.1a] - 2026-06-10
 
-Initial alpha release. Core platform is functional.
+Erste Alpha-Version. Kernfunktionen sind einsatzbereit.
 
-### Added
+### Neu
 
-**Core infrastructure**
-- No-framework PHP 8.1+ application with PSR-4 autoloading
-- Custom router with middleware support (auth, role-based access)
-- PDO-based database abstraction supporting SQLite (dev) and MySQL (prod)
-- Session management, CSRF protection
-- Audit log: every backend action recorded with user, entity, timestamp
-
-**Authentication & authorization**
-- LDAP authentication with auto-provisioning on first login
-- Five-level role hierarchy: `none`, `reader`, `staff`, `admin`, `superadmin`
-- Static dev credentials for local mode (bypasses LDAP)
-
-**Survey lifecycle**
-- 8-character access code generation for customers (no account required)
-- Survey states: `open → started → completed → evaluation → archived`
-- AJAX-based survey frontend with slider (1–6) and free-text question types
-- CSV bulk import to create multiple surveys from a spreadsheet in one step
-
-**Backend**
-- Dashboard with open surveys, scores, and reference status overview
-- Survey management: create, edit, send email, cancel, delete (superadmin)
-- Evaluation view: mark read/unread, archive, export PDF
-- PDF export with color-coded bar charts per question area (FPDF, server-side)
-- Outlook text copy for manual email dispatch
-- User management: create, edit, assign roles
-- Question and area management with drag-and-drop sequence ordering
-- Metropolregion management (linked to surveys and project leads)
-- Audit log viewer (superadmin)
-
-**Configuration**
-- Single `config.php` (not committed) controls all environment settings
-- `config.example.php` documents every available option
-- Versioned via `app.version` config key
-
-**Developer experience**
-- `dev/start.sh`: one-command local setup (SQLite, seed data, built-in server)
-- All frontend dependencies (FPDF, Quill, Chart.js) vendored — no build pipeline
+- Kundenbefragung per 8-stelligem Zugangscode (kein Kundenkonto erforderlich)
+- Fragen: Slider (Note 1–6), Freitext oder beides kombiniert
+- Befragungsstatus: Offen → Gestartet → Abgeschlossen → Archiviert
+- Referenzabfrage am Ende der Befragung (optional je Befragung)
+- CSV-Massenimport: mehrere Befragungen auf einmal anlegen
+- Dashboard mit Übersicht offener Befragungen, Bewertungen und Referenzstatus
+- Auswertungsansicht: als gelesen/ungelesen markieren, archivieren, PDF exportieren
+- E-Mail-Versand direkt aus dem Backend oder als Outlook-Vorlage zum Kopieren
+- Benutzerverwaltung mit fünf Rollen (Leser, Mitarbeiter, Admin, Superadmin)
+- Fragenverwaltung mit Drag-and-Drop-Sortierung pro Bereich
+- Vollständiges Aktivitätsprotokoll (nur Superadmin)

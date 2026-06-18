@@ -12,7 +12,13 @@ $currentAreaId = (int)($_GET['area_id'] ?? $preAreaId ?? 0);
 </div>
 <div class="be-panel-list">
     <?php
-    $allQuestions = $grouped ?? [];
+    if (!isset($grouped)) {
+        $grouped = [];
+        foreach (\App\Models\Question::findAll() as $q) {
+            $grouped[$q['area_id']]['questions'][] = $q;
+        }
+    }
+    $allQuestions = $grouped;
     $areas = $areas ?? \App\Models\Area::findAll();
 
     foreach ($areas as $area):

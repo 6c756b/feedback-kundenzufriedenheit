@@ -56,6 +56,20 @@ class Survey
         );
     }
 
+    /** Liefert id, status und updated_at für eine Liste von IDs (ein Query). */
+    public static function findStatusByIds(array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+        $ids  = array_values(array_unique(array_map('intval', $ids)));
+        $ph   = implode(',', array_fill(0, count($ids), '?'));
+        return Database::getInstance()->fetchAll(
+            "SELECT id, status, updated_at FROM surveys WHERE id IN ($ph)",
+            $ids
+        );
+    }
+
     /** Liefert alle area_ids einer Befragung aus der Pivot-Tabelle. */
     public static function getAreaIds(int $surveyId): array
     {

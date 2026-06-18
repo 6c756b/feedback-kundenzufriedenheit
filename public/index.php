@@ -192,7 +192,8 @@ $router->post('/backend/api-keys/{id}/loeschen',        [\App\Controllers\Backen
        ->middleware(['auth', 'role:admin']);
 
 // ── API v1 (API-Key Auth via Bearer Token) ───────────────────
-$router->post('/api/v1/surveys',     [\App\Controllers\Api\SurveyController::class, 'store']);
-$router->get('/api/v1/surveys/{id}', [\App\Controllers\Api\SurveyController::class, 'show']);
+$router->post('/api/v1/surveys',         [\App\Controllers\Api\SurveyController::class, 'store']);
+$router->post('/api/v1/surveys/status',  [\App\Controllers\Api\SurveyController::class, 'statusBulk']);
+$router->get('/api/v1/surveys/{id}',     [\App\Controllers\Api\SurveyController::class, 'show']);
 
 $router->dispatch();

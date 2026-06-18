@@ -159,16 +159,53 @@ class SurveyController
         Response::json([
             'success' => true,
             'data'    => [
-                'id'            => (int)$survey['id'],
-                'code'          => $survey['code'],
-                'status'        => $survey['status'],
-                'crm_id'        => $survey['crm_id'] !== null ? (int)$survey['crm_id'] : null,
-                'customer_name' => $survey['customer_name'],
-                'project_name'  => $survey['project_name'],
-                'avg_score'     => $avg !== null ? round((float)$avg, 2) : null,
-                'completed_at'  => $survey['updated_at'] ?? null,
-                'backend_url'   => $baseUrl . '/backend/befragungen/' . (int)$survey['id'],
+                'id'                 => (int)$survey['id'],
+                'code'               => $survey['code'],
+                'status'             => $survey['status'],
+                'crm_id'             => $survey['crm_id'] !== null ? (int)$survey['crm_id'] : null,
+                'customer_name'      => $survey['customer_name'],
+                'project_name'       => $survey['project_name'],
+                'avg_score'          => $avg !== null ? round((float)$avg, 2) : null,
+                'completed_at'       => $survey['updated_at'] ?? null,
+                'reference_requested'=> (bool)$survey['reference_requested'],
+                'reference_granted'  => $survey['reference_granted'] !== null ? (bool)$survey['reference_granted'] : null,
+                'backend_url'        => $baseUrl . '/backend/befragungen/' . (int)$survey['id'],
             ],
         ]);
+    }
+
+    /**
+     * POST /api/v1/surveys/status
+     * Body: {"ids": [1, 2, 3]}
+     * Returns the status (and completed_at) for each requested survey.
+     * Unknown IDs are silently omitted from the result.
+     */
+    public function statusBulk(array $params = []): void
+    {
+        ApiAuth::authenticate();
+        ApiAuth::requireRead();
+
+        $body = json_decode(file_get_contents('php://input'), true);
+        if (!is_array($body)) {
+            Response::json(['success' => false, 'error' => 'Ungültiger JSON-Body', 'code' => 'INVALID_JSON'], 400);
+        }
+
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array)($body['ids'] ?? [])))));
+        if (empty($ids)) {
+            Response::json(['success' => false, 'error' => 'ids ist erforderlich (min. 1 Element)', 'code' => 'VALIDATION_ERROR'], 400);
+        }
+        if (count($ids) > 500) {
+            Response::json(['success' => false, 'error' => 'Maximal 500 IDs pro Anfrage', 'code' => 'VALIDATION_ERROR'], 400);
+        }
+
+        $rows = Survey::findStatusByIds($ids);
+
+        $data = array_map(fn(array $r) => [
+            'id'           => (int)$r['id'],
+            'status'       => $r['status'],
+            'completed_at' => $r['updated_at'] ?? null,
+        ], $rows);
+
+        Response::json(['success' => true, 'data' => $data]);
     }
 }
