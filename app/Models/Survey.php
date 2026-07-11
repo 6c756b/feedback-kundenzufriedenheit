@@ -18,13 +18,22 @@ class Survey
              FROM survey_areas sa_sub
              JOIN areas a_sa ON a_sa.id = sa_sub.area_id
              WHERE sa_sub.survey_id = s.id) AS area_names,
-            u.name   AS created_by_name,
-            su.name  AS sales_user_name,
-            pl.name  AS project_lead_name,
+            u.name             AS created_by_name,
+            u.signature_image  AS created_by_image,
+            su.name            AS sales_user_name,
+            su.signature_image AS sales_user_image,
+            su.job_title       AS sales_user_job_title,
+            su.email           AS sales_user_email,
+            su.phone           AS sales_user_phone,
+            pl.name            AS project_lead_name,
+            pl.signature_image AS project_lead_image,
+            pl.job_title       AS project_lead_job_title,
+            pl.email           AS project_lead_email,
+            pl.phone           AS project_lead_phone,
             esb.name AS email_sent_by_name,
             mr.name  AS metropolregion_name
         FROM surveys s
-        JOIN  users u   ON u.id   = s.created_by
+        LEFT JOIN users u   ON u.id   = s.created_by
         LEFT JOIN users su  ON su.id  = s.sales_user_id
         LEFT JOIN users pl  ON pl.id  = s.project_lead_id
         LEFT JOIN users esb ON esb.id = s.email_sent_by
@@ -44,6 +53,20 @@ class Survey
         return Database::getInstance()->fetchOne(
             self::baseSelect() . ' WHERE s.id = ?',
             [$id]
+        );
+    }
+
+    /** Liefert id, status und updated_at für eine Liste von IDs (ein Query). */
+    public static function findStatusByIds(array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+        $ids  = array_values(array_unique(array_map('intval', $ids)));
+        $ph   = implode(',', array_fill(0, count($ids), '?'));
+        return Database::getInstance()->fetchAll(
+            "SELECT id, status, updated_at FROM surveys WHERE id IN ($ph)",
+            $ids
         );
     }
 
@@ -283,6 +306,14 @@ class Survey
         Database::getInstance()->execute(
             "UPDATE surveys SET email_sent_at = CURRENT_TIMESTAMP, email_sent_by = ?, email_sent_method = ? WHERE id = ?",
             [$userId, $method, $id]
+        );
+    }
+
+    public static function findByCrmId(int $crmId): ?array
+    {
+        return Database::getInstance()->fetchOne(
+            'SELECT id FROM surveys WHERE crm_id = ?',
+            [$crmId]
         );
     }
 

@@ -110,6 +110,21 @@ $hasSig        = !empty($old['display_name']) || !empty($old['job_title']) || !e
             </label>
             <?php endif; ?>
         </div>
+        <div class="form-group">
+            <label for="signature_image">Profilbild (max. 2 MB)</label>
+            <?php if (!empty($user['signature_image'])): ?>
+            <img src="<?= $h($user['signature_image']) ?>" alt="Profilbild"
+                 style="width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:8px">
+            <?php endif; ?>
+            <input type="file" id="signature_image" name="signature_image"
+                   accept="image/png,image/jpeg,image/gif,image/webp">
+            <?php if (!empty($user['signature_image'])): ?>
+            <label class="checkbox-label" style="margin-top:6px">
+                <input type="checkbox" name="clear_image" value="1">
+                Bild entfernen
+            </label>
+            <?php endif; ?>
+        </div>
         <?php endif; ?>
     </div>
 
@@ -140,19 +155,6 @@ $hasSig        = !empty($old['display_name']) || !empty($old['job_title']) || !e
             <input type="text" id="phone" name="phone"
                    value="<?= $h((string)($old['phone'] ?? '')) ?>">
         </div>
-        <?php if (!$isNew): ?>
-        <div class="form-group">
-            <label for="signature_image">Profilbild (max. 2 MB)</label>
-            <input type="file" id="signature_image" name="signature_image"
-                   accept="image/png,image/jpeg,image/gif,image/webp">
-            <?php if (!empty($user['signature_image'])): ?>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:8px">
-                <input type="checkbox" name="clear_image" value="1">
-                Bild entfernen
-            </label>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
     </div>
 
     <div class="form-actions" style="margin-top:var(--gap-section)">

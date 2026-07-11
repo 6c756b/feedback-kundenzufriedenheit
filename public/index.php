@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 define('ROOT', dirname(__DIR__));
 
+
 // Autoloader (PSR-4: App\ → app/)
 spl_autoload_register(function (string $class): void {
     $prefix = 'App\\';
@@ -181,5 +182,18 @@ $router->post('/backend/metropolregionen/{id}/loeschen',    [\App\Controllers\Ba
 // ── Backend Logs (superadmin) ────────────────────────────────
 $router->get('/backend/logs',                       [\App\Controllers\Backend\LogController::class, 'index'])
        ->middleware(['auth', 'role:superadmin']);
+
+// ── Backend API Keys (admin) ─────────────────────────────────
+$router->get('/backend/api-keys',                       [\App\Controllers\Backend\ApiKeyController::class, 'index'])
+       ->middleware(['auth', 'role:admin']);
+$router->post('/backend/api-keys',                      [\App\Controllers\Backend\ApiKeyController::class, 'store'])
+       ->middleware(['auth', 'role:admin']);
+$router->post('/backend/api-keys/{id}/loeschen',        [\App\Controllers\Backend\ApiKeyController::class, 'destroy'])
+       ->middleware(['auth', 'role:admin']);
+
+// ── API v1 (API-Key Auth via Bearer Token) ───────────────────
+$router->post('/api/v1/surveys',         [\App\Controllers\Api\SurveyController::class, 'store']);
+$router->post('/api/v1/surveys/status',  [\App\Controllers\Api\SurveyController::class, 'statusBulk']);
+$router->get('/api/v1/surveys/{id}',     [\App\Controllers\Api\SurveyController::class, 'show']);
 
 $router->dispatch();

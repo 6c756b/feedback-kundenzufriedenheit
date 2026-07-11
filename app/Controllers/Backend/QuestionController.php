@@ -25,6 +25,18 @@ class QuestionController
             $grouped[$q['area_id']]['questions'][]  = $q;
         }
 
+        $areaStats = array_column(Area::findAllWithStats(), null, 'id');
+        foreach ($grouped as $areaId => &$group) {
+            $stats = $areaStats[$areaId] ?? [];
+            $group['s_open']       = (int)($stats['s_open']       ?? 0);
+            $group['s_started']    = (int)($stats['s_started']    ?? 0);
+            $group['s_completed']  = (int)($stats['s_completed']  ?? 0);
+            $group['s_evaluation'] = (int)($stats['s_evaluation'] ?? 0);
+            $group['s_archived']   = (int)($stats['s_archived']   ?? 0);
+            $group['avg_score']    = isset($stats['avg_score']) ? (float)$stats['avg_score'] : null;
+        }
+        unset($group);
+
         ob_start();
         require ROOT . '/app/Views/backend/questions/_panel.php';
         $panelContent = ob_get_clean();

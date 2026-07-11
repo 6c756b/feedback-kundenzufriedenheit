@@ -1,5 +1,48 @@
 /* KZB – app.js | Vanilla ES2015+ */
 
+// ── Mobile Navigation ────────────────────────────────────────
+
+function initMobileNav() {
+    const toggle  = document.getElementById('be-menu-toggle');
+    const overlay = document.getElementById('be-sidebar-overlay');
+    const sidebar = document.querySelector('.be-sidebar');
+    if (!toggle || !sidebar) return;
+
+    function open() {
+        sidebar.classList.add('is-open');
+        if (overlay) overlay.classList.add('is-visible');
+        document.body.style.overflow = 'hidden';
+        toggle.setAttribute('aria-label', 'Navigation schließen');
+    }
+    function close() {
+        sidebar.classList.remove('is-open');
+        if (overlay) overlay.classList.remove('is-visible');
+        document.body.style.overflow = '';
+        toggle.setAttribute('aria-label', 'Navigation öffnen');
+    }
+
+    toggle.addEventListener('click', () => sidebar.classList.contains('is-open') ? close() : open());
+    if (overlay) overlay.addEventListener('click', close);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    sidebar.querySelectorAll('.be-nav-link').forEach(link => link.addEventListener('click', close));
+}
+
+// ── Mobile Panel ─────────────────────────────────────────────
+
+function initMobilePanel() {
+    const btn   = document.querySelector('.be-panel-mobile-toggle');
+    const panel = document.querySelector('.be-panel');
+    if (!btn || !panel) return;
+
+    panel.classList.add('is-collapsed');
+    btn.setAttribute('aria-expanded', 'false');
+
+    btn.addEventListener('click', () => {
+        const collapsed = panel.classList.toggle('is-collapsed');
+        btn.setAttribute('aria-expanded', String(!collapsed));
+    });
+}
+
 'use strict';
 
 // ── Hilfsfunktionen ──────────────────────────────────────────
@@ -929,6 +972,19 @@ function initAutocomplete() {
     });
 }
 
+// ── User Panel ───────────────────────────────────────────────
+
+function initUserPanel() {
+    document.querySelectorAll('.be-panel-group-header').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const body = btn.nextElementSibling;
+            const open = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+            body.hidden = open;
+        });
+    });
+}
+
 // ── Init ─────────────────────────────────────────────────────
 
 document.addEventListener('submit', e => {
@@ -950,6 +1006,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initToggleButtons();
     initAutoFilter();
     initAutocomplete();
+    initUserPanel();
+    initMobileNav();
+    initMobilePanel();
 
     // Code-Input: automatisch Kleinschreibung + Trim
     const codeInput = document.getElementById('code');

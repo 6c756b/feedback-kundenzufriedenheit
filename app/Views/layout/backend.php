@@ -11,22 +11,27 @@ $user = Auth::user();
 Response::setHeader('X-Frame-Options', 'DENY');
 Response::setHeader('X-Content-Type-Options', 'nosniff');
 
-function e(string $val): string {
-    return htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
+if (!function_exists('e')) {
+    function e(string $val): string {
+        return htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
+    }
 }
-$config = require ROOT . '/config.php';
+$config  = require ROOT . '/config.php';
+$appVersion = is_file(ROOT . '/VERSION') ? trim(file_get_contents(ROOT . '/VERSION')) : '';
 $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
 
-function beNavLink(string $href, string $label, string $icon, string $currentUri, bool $startsWith = true): string {
-    $active = $startsWith ? str_starts_with($currentUri, $href) : $currentUri === $href;
-    if ($href === '/backend' && $startsWith) {
-        $active = $currentUri === '/backend';
+if (!function_exists('beNavLink')) {
+    function beNavLink(string $href, string $label, string $icon, string $currentUri, bool $startsWith = true): string {
+        $active = $startsWith ? str_starts_with($currentUri, $href) : $currentUri === $href;
+        if ($href === '/backend' && $startsWith) {
+            $active = $currentUri === '/backend';
+        }
+        $cls = $active ? ' is-active' : '';
+        return '<a href="' . htmlspecialchars($href, ENT_QUOTES) . '" class="be-nav-link' . $cls . '">'
+             . '<svg class="be-nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">' . $icon . '</svg>'
+             . htmlspecialchars($label, ENT_QUOTES)
+             . '</a>';
     }
-    $cls = $active ? ' is-active' : '';
-    return '<a href="' . htmlspecialchars($href, ENT_QUOTES) . '" class="be-nav-link' . $cls . '">'
-         . '<svg class="be-nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">' . $icon . '</svg>'
-         . htmlspecialchars($label, ENT_QUOTES)
-         . '</a>';
 }
 
 $icons = [
@@ -39,6 +44,7 @@ $icons = [
     'areas'      => '<path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L9.568 3Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>',
     'regions'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>',
     'logs'       => '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>',
+    'apikeys'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 0 1 21.75 8.25Z"/>',
     'profile'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>',
     'logout'     => '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/>',
 ];
@@ -65,6 +71,17 @@ $icons = [
 </head>
 <body class="backend">
 
+<div class="be-sidebar-overlay" id="be-sidebar-overlay"></div>
+
+<header class="be-topbar">
+    <button class="be-menu-toggle" id="be-menu-toggle" aria-label="Navigation öffnen">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:22px;height:22px">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+        </svg>
+    </button>
+    <span class="be-topbar-brand"><?= e($config['app']['name'] ?? '') ?></span>
+</header>
+
 <div class="be-wrap">
 
     <aside class="be-sidebar">
@@ -85,6 +102,7 @@ $icons = [
             <div class="be-nav-group-label">Administration</div>
             <?= beNavLink('/backend/fragen', 'Fragen', $icons['questions'], $uri) ?>
             <?= beNavLink('/backend/benutzer', 'Benutzer', $icons['users'], $uri) ?>
+            <?= beNavLink('/backend/api-keys', 'API Keys', $icons['apikeys'], $uri) ?>
             <?php endif; ?>
 
             <?php if (Auth::hasRole('superadmin')): ?>
@@ -95,6 +113,9 @@ $icons = [
             <?php endif; ?>
         </nav>
 
+        <?php if ($appVersion): ?>
+        <div class="be-sidebar-version">v<?= e($appVersion) ?></div>
+        <?php endif; ?>
         <div class="be-sidebar-footer">
             <div class="be-sidebar-user">
                 <a href="/backend/profil" class="be-sidebar-user-name" title="Profil bearbeiten">
@@ -115,7 +136,15 @@ $icons = [
     <div class="be-body<?= isset($panelContent) ? ' be-body--has-panel' : '' ?>">
         <?php if (isset($panelContent)): ?>
         <aside class="be-panel">
-            <?= $panelContent ?>
+            <button class="be-panel-mobile-toggle" aria-expanded="false">
+                Navigation
+                <svg class="be-panel-toggle-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:16px;height:16px">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                </svg>
+            </button>
+            <div class="be-panel-content">
+                <?= $panelContent ?>
+            </div>
         </aside>
         <?php endif; ?>
 
@@ -124,7 +153,7 @@ $icons = [
             <script>window.__chartData = <?= json_encode($chartData) ?>;</script>
             <?php endif; ?>
             <?php require ROOT . '/app/Views/partials/flash.php' ?>
-            <?= $content ?>
+            <?= $content ?? '' ?>
         </main>
     </div>
 

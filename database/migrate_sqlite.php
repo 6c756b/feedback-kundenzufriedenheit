@@ -2,9 +2,11 @@
 // Migration-Runner für SQLite.
 // Liest *.sql-Dateien aus database/migrations/, extrahiert SQLite-spezifische
 // Statements (Zeilen nach dem "-- SQLite"-Marker, die mit "-- " beginnen)
-// und trackt angewandte Migrationen in der Tabelle _migrations.
+// und tracked angewandte Migrationen in der Tabelle _migrations.
 
-$dbPath = __DIR__ . '/kzb.sqlite';
+define('ROOT', dirname(__DIR__));
+$config = require ROOT . '/config.php';
+$dbPath = $config['db']['path'] ?? (__DIR__ . '/feedback.sqlite');
 $migrationsDir = __DIR__ . '/migrations';
 
 $pdo = new PDO('sqlite:' . $dbPath);

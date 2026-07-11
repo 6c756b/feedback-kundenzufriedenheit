@@ -1,6 +1,7 @@
 <?php
 $h = fn(string $v) => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
 $panelCurrentId = (int)($panelCurrentId ?? 0);
+$currentUri = rtrim(strtok($_SERVER['REQUEST_URI'] ?? '/', '?'), '/');
 
 $groups = [
     'admin'     => ['label' => 'Administration', 'members' => []],
@@ -31,8 +32,12 @@ foreach ($panelUsers as $u) {
 ?>
 <div class="be-panel-header">
     <div class="be-panel-title">Benutzer</div>
+    <a href="/backend/benutzer" class="be-panel-header-link<?= $currentUri === '/backend/benutzer' ? ' is-active' : '' ?>" title="Alle Benutzer anzeigen">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="be-panel-header-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/></svg>
+        Alle
+    </a>
 </div>
-<div class="be-panel-list" style="padding:0">
+<div class="be-panel-list be-panel-list--flush">
     <?php foreach ($groups as $gKey => $group):
         $members = $group['members'];
         if (empty($members)) continue;
@@ -56,7 +61,7 @@ foreach ($panelUsers as $u) {
                class="be-panel-item<?= $isActive ? ' is-active' : '' ?><?= !$u['active'] ? ' row-inactive' : '' ?>">
                 <span class="be-panel-item-name"><?= $h($u['name']) ?></span>
                 <?php if (!$u['active']): ?>
-                <span class="be-panel-item-meta" style="color:#c0392b;font-size:10px;font-weight:700">Inaktiv</span>
+                <span class="be-panel-item-meta be-panel-item-meta--inactive">Inaktiv</span>
                 <?php endif; ?>
             </a>
             <?php endforeach; ?>
@@ -68,14 +73,3 @@ foreach ($panelUsers as $u) {
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
     Neuer Benutzer
 </a>
-
-<script>
-document.querySelectorAll('.be-panel-group-header').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        var body = btn.nextElementSibling;
-        var open = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', open ? 'false' : 'true');
-        body.hidden = open;
-    });
-});
-</script>

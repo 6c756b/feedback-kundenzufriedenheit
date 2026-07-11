@@ -79,9 +79,15 @@ foreach ($areas as $a) {
 <?php if ($grouped): ?>
 <div class="q-area-grid">
     <?php foreach ($grouped as $areaId => $group):
-        $aTotal  = count($group['questions']);
-        $aActive = count(array_filter($group['questions'], fn($q) => $q['active']));
-        $pct     = $aTotal > 0 ? round($aActive / $aTotal * 100) : 0;
+        $aTotal   = count($group['questions']);
+        $aActive  = count(array_filter($group['questions'], fn($q) => $q['active']));
+        $pct      = $aTotal > 0 ? round($aActive / $aTotal * 100) : 0;
+        $sLaufend = $group['s_open'] + $group['s_started'];
+        $sAbschl  = $group['s_completed'];
+        $sAusw    = $group['s_evaluation'];
+        $sArch    = $group['s_archived'];
+        $sTotal   = $sLaufend + $sAbschl + $sAusw + $sArch;
+        $avgScore = $group['avg_score'];
     ?>
     <a href="/backend/fragen?area_id=<?= (int)$areaId ?>" class="q-area-card<?= !$group['area_active'] ? ' q-area-card--inactive' : '' ?>">
         <div class="q-area-card-header">
@@ -100,6 +106,25 @@ foreach ($areas as $a) {
         <div class="q-area-bar">
             <div class="q-area-bar-fill" style="width:<?= $pct ?>%"></div>
         </div>
+        <?php if ($avgScore !== null): ?>
+        <div class="q-area-avg">
+            <div class="q-area-avg-top">
+                <span class="q-area-avg-score"><?= number_format($avgScore, 1, ',', '') ?></span>
+                <span class="q-area-avg-label">Ø Bewertung (1–6)</span>
+            </div>
+            <div class="q-area-avg-bar">
+                <div class="q-area-avg-bar-fill" style="width:<?= round($avgScore / 6 * 100) ?>%"></div>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php if ($sTotal > 0): ?>
+        <div class="stat-pill q-area-surveys">
+            <?php if ($sLaufend > 0): ?><span class="sp-blue"><?= $sLaufend ?> laufend</span><?php endif; ?>
+            <?php if ($sAbschl  > 0): ?><span class="sp-amber"><?= $sAbschl ?> abgeschl.</span><?php endif; ?>
+            <?php if ($sAusw    > 0): ?><span class="sp-amber"><?= $sAusw ?> Ausw.</span><?php endif; ?>
+            <?php if ($sArch    > 0): ?><span class="sp-slate"><?= $sArch ?> Archiv</span><?php endif; ?>
+        </div>
+        <?php endif; ?>
         <div class="q-area-card-footer">
             <?= $aTotal ?> Fragen gesamt &rsaquo;
         </div>

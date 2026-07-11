@@ -19,9 +19,12 @@ class Area
             "SELECT a.*,
                 COALESCE(q.active_count,   0) AS q_active,
                 COALESCE(q.inactive_count, 0) AS q_inactive,
-                COALESCE(s.open_count,       0) AS s_open,
-                COALESCE(s.evaluation_count, 0) AS s_evaluation,
-                COALESCE(s.archived_count,   0) AS s_archived
+                COALESCE(s.s_open,       0) AS s_open,
+                COALESCE(s.s_started,    0) AS s_started,
+                COALESCE(s.s_completed,  0) AS s_completed,
+                COALESCE(s.s_evaluation, 0) AS s_evaluation,
+                COALESCE(s.s_archived,   0) AS s_archived,
+                sc.avg_score
             FROM areas a
             LEFT JOIN (
                 SELECT area_id,
@@ -32,13 +35,22 @@ class Area
             ) q ON q.area_id = a.id
             LEFT JOIN (
                 SELECT sa.area_id,
-                    SUM(CASE WHEN s.status IN ('open','started')  THEN 1 ELSE 0 END) AS open_count,
-                    SUM(CASE WHEN s.status = 'completed'          THEN 1 ELSE 0 END) AS evaluation_count,
-                    SUM(CASE WHEN s.status = 'archived'           THEN 1 ELSE 0 END) AS archived_count
+                    SUM(CASE WHEN s.status = 'open'       THEN 1 ELSE 0 END) AS s_open,
+                    SUM(CASE WHEN s.status = 'started'    THEN 1 ELSE 0 END) AS s_started,
+                    SUM(CASE WHEN s.status = 'completed'  THEN 1 ELSE 0 END) AS s_completed,
+                    SUM(CASE WHEN s.status = 'evaluation' THEN 1 ELSE 0 END) AS s_evaluation,
+                    SUM(CASE WHEN s.status = 'archived'   THEN 1 ELSE 0 END) AS s_archived
                 FROM survey_areas sa
                 JOIN surveys s ON s.id = sa.survey_id
                 GROUP BY sa.area_id
             ) s ON s.area_id = a.id
+            LEFT JOIN (
+                SELECT q2.area_id, ROUND(AVG(ans.slider_value), 1) AS avg_score
+                FROM survey_answers ans
+                JOIN questions q2 ON q2.id = ans.question_id
+                WHERE ans.answer_type = 'slider' AND ans.slider_value IS NOT NULL
+                GROUP BY q2.area_id
+            ) sc ON sc.area_id = a.id
             ORDER BY a.sort_order, a.name"
         );
     }

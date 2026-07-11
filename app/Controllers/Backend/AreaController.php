@@ -16,8 +16,11 @@ class AreaController
         $panelAreas     = Area::findAll();
         $panelCurrentId = $currentId;
         ob_start();
-        require ROOT . '/app/Views/backend/areas/_panel.php';
-        return ob_get_clean();
+        try {
+            require ROOT . '/app/Views/backend/areas/_panel.php';
+        } finally {
+            return ob_get_clean() ?: '';
+        }
     }
 
     public function index(array $params = []): void

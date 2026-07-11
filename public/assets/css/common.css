@@ -140,6 +140,7 @@ h3 { font-size: 16px; font-weight: 700; }
 .badge-archived  { background: var(--color-gray-60); color: var(--color-navy-80); }
 .badge-unread    { background: #fde8c8; color: #a05000; }
 .badge-cancelled { background: #fde8e8; color: #c0392b; }
+.badge-disabled  { background: var(--color-gray-40); color: var(--color-navy-40); opacity: .55; }
 
 /* Stat-Pills */
 .stat-pill {
