@@ -1,5 +1,10 @@
 # Feedback KZB - Kundenzufriedenheitsbefragung
 
+![Version](https://img.shields.io/badge/version-0.1.3a-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![UI Language](https://img.shields.io/badge/UI-Deutsch-orange)
+![PHP](https://img.shields.io/badge/PHP-8.1%2B-777bb4)
+
 A self-hosted customer satisfaction survey platform built with plain PHP. No framework, no build tools, no package manager required in production.
 
 Customers receive a unique access code via email and fill out a structured survey (slider ratings + free text). Staff evaluates results, exports PDF reports, and tracks reference requests - all from a role-protected backend.
@@ -270,4 +275,4 @@ See [CHANGELOG.md](CHANGELOG.md) for a full version history.
 
 ## License
 
-MIT
+MIT - see [LICENSE](LICENSE)
