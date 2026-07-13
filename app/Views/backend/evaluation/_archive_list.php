@@ -1,5 +1,5 @@
 <?php
-$h = fn(string $v) => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+$h = fn(?string $v) => htmlspecialchars($v ?? '', ENT_QUOTES, 'UTF-8');
 $statusLabels = ['archived' => 'Archiviert', 'cancelled' => 'Abgebrochen'];
 $baseUrl = '/backend/archiv';
 $sortBy  = $filters['sort_by']  ?? 'datum';

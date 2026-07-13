@@ -10,6 +10,14 @@
 
 ---
 
+## [0.1.4a] - 2026-07-13
+
+### Behoben
+
+- Auswertungsliste (und Archiv) stürzte mit einem Fatal Error ab, wenn zu einer Befragung kein anlegender Benutzer mehr ermittelt werden konnte (z. B. bei gelöschtem Benutzer)
+
+---
+
 ## [0.1.3a] - 2026-07-11
 
 ### Neu

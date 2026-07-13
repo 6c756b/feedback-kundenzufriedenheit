@@ -1,6 +1,6 @@
 <?php
 use App\Core\Auth;
-$h = fn(string $v) => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+$h = fn(?string $v) => htmlspecialchars($v ?? '', ENT_QUOTES, 'UTF-8');
 
 $baseUrl = '/backend/auswertung';
 $sortBy  = $filters['sort_by']  ?? 'datum';
